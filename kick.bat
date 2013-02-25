@@ -1,0 +1,1 @@
+java -cp target\dataGenerator-1.0-SNAPSHOT.jar com.asiainfo.stream.SignalKicker files/data.csv 0 10.1.253.93 10.1.253.92 10.1.253.91
