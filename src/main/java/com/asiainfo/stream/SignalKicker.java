@@ -15,11 +15,12 @@ public class SignalKicker {
         final long time1 = System.currentTimeMillis();
         final String filePath = args[0];
         final long sleepTime = Long.parseLong(args[1]); // 指定发送1000条信令暂停多少毫秒
-        final int paramLength = args.length - 2;
+        final long count = Long.parseLong(args[2]); // 指定发送1000条信令暂停多少毫秒
+        final int paramLength = args.length - 3;
         final String[] destIp = new String[paramLength];
         if (paramLength >= 1){
             for (int i = 0; i < paramLength; i++){
-                destIp[i] = args[i + 2];
+                destIp[i] = args[i + 3];
                 System.out.println("destination IP: [" + i + "]: " + destIp[i]);
             }
         }
@@ -45,8 +46,8 @@ public class SignalKicker {
                             String rec = buff.readLine();
                             long timea = System.currentTimeMillis();
                             int i = 1;
-//                            while (rec != null && i <= 1000){
-                            while (rec != null){
+                            while (rec != null && i <= count){
+//                            while (rec != null){
 //                              String[] tmp = rec.split(",");
 //                              StringBuilder sbf = new StringBuilder();
 //                              sbf.append(tmp[0]).append(",").append(tmp[1]).append(",").append(tmp[2]).append(",").append(tmp[3]);
