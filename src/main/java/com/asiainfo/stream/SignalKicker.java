@@ -14,6 +14,7 @@ public class SignalKicker {
     public static void main(String[] args){
         final long time1 = System.currentTimeMillis();
         final String filePath = args[0];
+//        final String filePath = "d:\\svn\\storm\\dataGenerator\\files\\tmp\\100001000008870.csv";
         final long sleepTime = Long.parseLong(args[1]); // 指定发送1000条信令暂停多少毫秒
         final long kickCount = Long.parseLong(args[2]); // 指定发送信令条数，大于零是生效
         final int paramLength = args.length - 3;
@@ -27,7 +28,6 @@ public class SignalKicker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-//                String filePath = "d:\\work\\dataGenerator\\files\\data.csv";
                 System.out.println("To read file: " + filePath);
                 if (filePath != null && !filePath.equals("")){
                     File file = new File(filePath);

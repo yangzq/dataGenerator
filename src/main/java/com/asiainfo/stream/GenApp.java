@@ -284,7 +284,7 @@ public class GenApp {
         return index;
     }
     public static void main(String[] args){
-        long time1 = System.currentTimeMillis();
+        long timebegin = System.currentTimeMillis();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-12 23:59:59.999";
@@ -311,7 +311,36 @@ public class GenApp {
 //        System.out.println(index);
 //        System.out.println(index + ": " + testArr[index]);
 
-        long time2 = System.currentTimeMillis();
-        System.out.println("耗时：" + (time2 - time1));
+
+
+        formatTime("2013-01-01 00:00:00.000");
+        formatTime("2013-01-04 00:00:00.000");
+        formatTime("2013-01-05 00:00:00.000");
+        formatTime("2013-01-06 00:00:00.000");
+        formatTime("2013-01-07 00:00:00.000");
+        formatTime("2013-01-08 00:00:00.000");
+        formatTime("2013-01-09 00:00:00.000");
+        formatTime("2013-01-10 17:59:59.999");
+        formatTime("2013-01-11 00:00:00.000");
+        formatTime("2013-01-12 01:00:00.000");
+        formatTime("2013-01-13 02:00:00.000");
+        formatTime("2013-01-14 02:00:00.000");
+        formatTime("2013-01-14 17:00:00.000");
+        formatTime("2013-01-14 19:00:00.000");
+        formatTime("2013-01-14 22:00:00.000");
+        formatTime("2013-01-16 07:00:00.000");
+
+        long timeend = System.currentTimeMillis();
+        System.out.println("耗时：" + (timeend - timebegin));
+    }
+
+    static void formatTime(String timeStr){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        try {
+            long ltime = sdf.parse(timeStr).getTime();
+            System.out.println(String.format("%s",ltime));
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
     }
 }
