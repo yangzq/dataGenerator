@@ -59,14 +59,20 @@ public class CommonUserUtil {
         long hours = endDate / (60 * 60 * 1000) - startDate / (60 * 60 * 1000) + 1;
         long days = hours / 24;
 
-        System.out.print("统计生成" + hours + "小时；" + days + "天。");
+        System.out.println(String.format("统计生成%d小时，%d天。",hours, days));
 
         for(int i = 0; i < hours; i++){
             times = genRandomTime(generateRate);
             locations = genLocation(startDate, endDate, generateRate);
             for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++){
-                long signalTine = startDate + times[j];
-                content.append(imsi + "," + signalTine + "," + locations[j][0] + "," + locations[j][1] + "," + new Date(signalTine) + "\r\n");
+                long signalTime = startDate + times[j];
+                String timeCheck = new String();
+                try {
+                    timeCheck = GenApp.getTime(signalTime);
+                } catch (ParseException e){
+                    e.printStackTrace();
+                }
+                content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
                 if (j == generateRate - 1){
                     startDate += 60 * 60 * 1000;
                 }

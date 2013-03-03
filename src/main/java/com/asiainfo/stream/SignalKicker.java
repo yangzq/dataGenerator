@@ -16,7 +16,7 @@ public class SignalKicker {
         final String filePath = args[0];
 //        final String filePath = "d:\\svn\\storm\\dataGenerator\\files\\tmp\\100001000008870.csv";
         final long sleepTime = Long.parseLong(args[1]); // 指定发送1000条信令暂停多少毫秒
-        final long kickCount = Long.parseLong(args[2]); // 指定发送信令条数，大于零是生效
+        final long kickCount = Long.parseLong(args[2]); // 指定发送信令条数，大于零时生效
         final int paramLength = args.length - 3;
         final String[] destIp = new String[paramLength];
         if (paramLength >= 1){
@@ -81,7 +81,7 @@ public class SignalKicker {
                                     out[index].println(rec);
                                     out[index].flush();
 //                                    System.out.println("Send data: " + sbf.toString() + " to: " + socket.getInetAddress() + ":" + socket.getPort());
-                                    System.out.println("Send data: " + rec + " to: " + sockets[index].getInetAddress() + ":" + sockets[index].getPort());
+                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
                                     if(i % 1000 == 0){
                                         long timeb = System.currentTimeMillis();
                                         System.out.println("本次发送1000条数据耗时：" + (timeb - timea));

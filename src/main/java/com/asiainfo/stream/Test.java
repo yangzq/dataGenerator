@@ -5,6 +5,7 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.io.*;
+import java.util.TimeZone;
 
 /**
  * Created with IntelliJ IDEA.
@@ -131,7 +132,7 @@ public class Test {
                 if(file.exists()){
                     System.out.print("file: " + file.getAbsolutePath() + " already exists. Now delete it: ");
                     boolean deleted = file.delete();
-                    System.out.println(deleted ? "succeed" : "fail");
+                    System.out.println(deleted ? "success" : "fail");
                 }
                 try{
                     boolean created = file.createNewFile();
@@ -151,7 +152,11 @@ public class Test {
                         } else {
                             lrecords[i] = 0L;
                         }
-                        System.out.println(records[i] + " with time: " + new Date(lrecords[i]) + "\t" + i);
+                        try {
+                            System.out.println(records[i] + " with time: " + GenApp.getTime(lrecords[i]) + "\t" + i);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                     BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
                     int index = findSmallest(lrecords);
@@ -224,7 +229,7 @@ public class Test {
             BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
             int index = findSmallest(lrecords);
             while (index >= 0 && lrecords[index] > 0){
-                System.out.println("index :" + index);
+//                System.out.println("index: " + index);
 //                System.out.println("Write data: " + records[index] + " , file: " + sourceFileArr[index].getName());
                 buffOut.write((records[index] + "\r\n").getBytes());
                 records[index] = buffs[index].readLine();
@@ -277,6 +282,10 @@ public class Test {
                     allZero = false;
                 }
             }
+        } else {
+            if (arr[0] > 0){
+                allZero = false;
+            }
         }
         if (allZero){
             index = -1;
@@ -286,17 +295,17 @@ public class Test {
     public static void main(String[] args){
         long timebegin = System.currentTimeMillis();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-10 23:59:59.999";
         long startDate = 0L, endDate = 0L;
         try {
-            startDate = sdf.parse(startDateStr).getTime();
-            endDate = sdf.parse(endDateStr).getTime();
-            System.out.println(startDateStr+"\t"+sdf.parse(startDateStr)+"\t"+startDate+"\t"+new Date(startDate));
+            startDate = getTime(startDateStr);
+            endDate = getTime(endDateStr);
+            System.out.println(startDateStr+"\t"+"\t"+startDate+"\t"+getTime(startDate));
+            System.out.println(endDateStr+"\t"+"\t"+endDate+"\t"+getTime(endDate));
         } catch (ParseException e){
             e.printStackTrace();
         }
-        new GenApp().generateData(1L, 0D, 1D, startDate, endDate, 2L, 0D);
+        new Test().generateData(10L, 1D, 0D, startDate, endDate, 2L, 0D);
 
 
 //        new GenApp().mergeFile("files" + File.separator +"tmp" + File.separator, "files" + File.separator +"data.csv");
@@ -306,8 +315,8 @@ public class Test {
 //        new GenApp().mergeFile(fileArr, "files" + File.separator +"test.csv");
 
 //        long[] testArr = {3L, 3L, 4L, 2L, 5L};
-//        long[] zeros = {0L, 0L, 0L, 0L, 0L};
-//        int index = new GenApp().findSmallest(zeros);
+//        long[] zeros = {0L};
+//        int index = new Test().findSmallest(zeros);
 //        System.out.println(index);
 //        System.out.println(index + ": " + testArr[index]);
 
@@ -329,21 +338,26 @@ public class Test {
         formatTime("2013-01-14 19:00:00.000");
         formatTime("2013-01-14 22:00:00.000");
         formatTime("2013-01-16 07:00:00.000");
-
+*/
+//        formatTime("2013-01-11 01:01:01.000");
         long timeend = System.currentTimeMillis();
         System.out.println("耗时：" + (timeend - timebegin));
-        */
-
 
     }
 
     static void formatTime(String timeStr){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
         try {
-            long ltime = sdf.parse(timeStr).getTime();
-            System.out.println(String.format("%s",ltime));
+            long ltime = getTime(timeStr);
+            System.out.println(String.format("%s\t%s", ltime, getTime(ltime)));
         } catch (ParseException e){
             e.printStackTrace();
         }
+    }
+    private static long getTime(String s) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z").parse(s + " +0000").getTime();
+    }
+    private static String getTime(long s) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(s- TimeZone.getDefault().getRawOffset()));
     }
 }

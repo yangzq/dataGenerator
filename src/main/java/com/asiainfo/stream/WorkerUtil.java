@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
+import java.util.TimeZone;
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,16 +67,20 @@ public class WorkerUtil {
         }
         Arrays.sort(tourDaysArr);
 
-        System.out.print("统计生成" + hours + "小时；" + days + "天；在景区" + tourDays + "天，为");
-        for(int i : tourDaysArr){
-            System.out.print("第" + i +"天，");
-        }
-        System.out.println();
+        System.out.print(String.format("统计生成%d小时，%d天；在景区%d天，为：", hours, days, tourDays));
+//        for(int i : tourDaysArr){
+//            System.out.print("第" + i +"天，");
+//        }
+//        System.out.println();
 
         long[] tourMillisArr = new long[tourDays];
         for(int i = 0; i < tourDays; i++){
             tourMillisArr[i] = startDate + (long)(tourDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
-            System.out.println("时间：" + new Date(tourMillisArr[i]));
+            try {
+                System.out.println(GenApp.getTime(tourMillisArr[i]));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
 //        long threeHours = 3 * 60 * 60 * 1000;
@@ -85,13 +90,23 @@ public class WorkerUtil {
             times = genRandomTime(generateRate);
             locations = genLocation(startDate, endDate, generateRate);
             for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++){
-                long signalTine = startDate + times[j];
-                if (isInDaytimeInterval(tourMillisArr, signalTine)){
-                    content.append(imsi + "," + signalTine + "," + locations[j][0] + "," + "tourist," + new Date(signalTine) + "\r\n");
-                } else if (isInNightInterval(tourMillisArr, signalTine)){
-                    content.append(imsi + "," + signalTine + "," + locations[j][0] + "," + "tourist," + new Date(signalTine) + "\r\n");
+                long signalTime = startDate + times[j];
+                String timeCheck = new String();
+                try {
+                    timeCheck = GenApp.getTime(signalTime);
+                } catch (ParseException e){
+                    e.printStackTrace();
+                }
+                if (isInDaytimeInterval(tourMillisArr, signalTime)){
+                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
+                } else if (isInNightInterval(tourMillisArr, signalTime)){
+                    if (i == hours -1 && j == generateRate - 1){
+                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "home," + timeCheck + "\r\n");
+                    } else {
+                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
+                    }
                 } else {
-                    content.append(imsi + "," + signalTine + "," + locations[j][0] + "," + locations[j][1] + "," + new Date(signalTine) + "\r\n");
+                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
                 }
                 if (j == generateRate - 1){
                     startDate += 60 * 60 * 1000;
