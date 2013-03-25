@@ -1,4 +1,4 @@
-package com.asiainfo.stream;
+package com.asiainfo.stream.tourist;
 
 import java.io.*;
 import java.text.ParseException;
@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
-import java.util.TimeZone;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,11 +13,11 @@ import java.util.TimeZone;
  * Date: 13-2-18
  * Time: 下午3:36
  */
-public class WorkerUtil {
+public class TouristUtil {
     private Random random = new Random();
 
     /**
-     * 生成景区工作人员信令数据
+     * 生成游客信令数据
      * @param imsi
      * 游客用户Imsi
      * @param startDate
@@ -31,8 +30,8 @@ public class WorkerUtil {
      * 数据格式：“imsi,time,loc,cell”
      * cell字段为"tourist"时客户在景区
      */
-    void generateWorkerData(String imsi, long startDate, long endDate, long generateRate){
-        String filePath = "files" + File.separator +"tmp" + File.separator;
+     void generateTouristData(String imsi, long startDate, long endDate, long generateRate){
+        String filePath = GenApp.fileDir + File.separator +"tmp" + File.separator;
         String fileName = imsi + ".csv";
 
         File file = createFile(filePath, fileName);
@@ -59,8 +58,7 @@ public class WorkerUtil {
 
         long hours = endDate / (60 * 60 * 1000) - startDate / (60 * 60 * 1000) + 1;
         long days = hours / 24;
-        int tourDays = getNotZeroRandomInt(5,10); // 在景区天数，限制不少于5天，不多于10天
-//        int tourDays = 10;
+        int tourDays = getNotZeroRandomInt(5); // 在景区天数，限制少于5天
         int[] tourDaysArr = getRandomIntArr(tourDays, 10); // 最后十天内哪几天在景区
         for (int i = 0; i < tourDaysArr.length; i++){
             tourDaysArr[i] = (int)days - tourDaysArr[i];
@@ -73,15 +71,21 @@ public class WorkerUtil {
 //        }
 //        System.out.println();
 
+//        Test.summaryInfo.append(imsi + ": tourist" + "\t");
+        GenApp.summaryInfo.append(imsi + ": tourist" + "\t");
         long[] tourMillisArr = new long[tourDays];
         for(int i = 0; i < tourDays; i++){
             tourMillisArr[i] = startDate + (long)(tourDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
             try {
-                System.out.println(GenApp.getTime(tourMillisArr[i]));
+                System.out.println(GenApp.getDate(tourMillisArr[i]));
+//                Test.summaryInfo.append(GenApp.getDate(tourMillisArr[i]) + "\t");
+                GenApp.summaryInfo.append(GenApp.getDate(tourMillisArr[i]) + "\t");
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
+//        Test.summaryInfo.append("\r\n");
+        GenApp.summaryInfo.append("\r\n");
 
 //        long threeHours = 3 * 60 * 60 * 1000;
 //        long fiveHours = 5 * 60 * 60 * 1000;
@@ -100,13 +104,13 @@ public class WorkerUtil {
                 if (isInDaytimeInterval(tourMillisArr, signalTime)){
                     content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
                 } else if (isInNightInterval(tourMillisArr, signalTime)){
-                    if (i == hours -1 && j == generateRate - 1){
-                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "home," + timeCheck + "\r\n");
-                    } else {
-                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
-                    }
+                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
                 } else {
-                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
+                    if (i == hours -1 && j == generateRate - 1){
+                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
+                    } else {
+                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
+                    }
                 }
                 if (j == generateRate - 1){
                     startDate += 60 * 60 * 1000;
@@ -141,9 +145,9 @@ public class WorkerUtil {
     int[] getRandomIntArr(int len, int maxValue){
         int[] arr = new int[len];
         for (int i = 0; i < len; i++){
-            arr[i] = -1;
+            arr[i] = 0;
         }
-        if(maxValue >= len){
+        if(maxValue > len){
             for (int i = 0; i < len; i++){
                 int tmpInt = random.nextInt(maxValue);
                 for(int j = 0; j < len; j++){
@@ -163,17 +167,10 @@ public class WorkerUtil {
         }
     }
 
-    /**
-     *
-     * @param floor
-     * @param ceiling
-     * @return
-     * [floor,ceiling]区间内的随机整数
-     */
-    int getNotZeroRandomInt(int floor, int ceiling){
-        int i = random.nextInt(ceiling + 1);
-        while (i == 0 || i < floor){
-            i = random.nextInt(ceiling + 1);
+    int getNotZeroRandomInt (int ceiling){
+        int i = random.nextInt(ceiling);
+        while (i == 0){
+            i = random.nextInt(ceiling);
         }
         return i;
     }
@@ -214,7 +211,7 @@ public class WorkerUtil {
      * @return
      * 是否成功
      */
-    File createFile(String filePath, String fileName){
+     File createFile(String filePath, String fileName){
         File userFilePath = new File(filePath);
         if (!userFilePath.exists()){
             boolean success = userFilePath.mkdirs();
@@ -224,7 +221,7 @@ public class WorkerUtil {
         if(!userFile.exists()){
             try{
                 boolean created = userFile.createNewFile();
-                System.out.println("new worker file: " + userFile.getAbsolutePath() + ": " + created);
+                System.out.println("new tourist file: " + userFile.getAbsolutePath() + ": " + created);
             } catch (IOException e){
                 e.printStackTrace();
                 userFile = null;
@@ -237,9 +234,21 @@ public class WorkerUtil {
     }
 
     public static void main(String[] args){
+//        new TouristUtil().generateTouristData("100001000002829", (System.currentTimeMillis() - 3600 * 1000), System.currentTimeMillis(), 6L);
+//        long[] test = new TouristUtil().genRandomTime(System.currentTimeMillis(), 10L);
+//        for(long l: test){
+//            System.out.println(l);
+//        }
+//        String[][] testLocations = new TouristUtil().genLocation(10L);
+//        for(String[] str: testLocations){
+//            System.out.println(str[0] + "\t" + str[1]);
+//        }
+//        long hours = System.currentTimeMillis() / (60 * 60 * 1000) - (System.currentTimeMillis() - 3600 * 1000) / (60 * 60 * 1000);
+//        System.out.println(hours);
+
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-11 23:59:59.999";
+        String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-12 23:59:59.999";
         long startDate = 0L, endDate = 0L;
         try {
             startDate = sdf.parse(startDateStr).getTime();
@@ -249,7 +258,11 @@ public class WorkerUtil {
         } catch (ParseException e){
             e.printStackTrace();
         }
-        new WorkerUtil().generateWorkerData("100001000002831", 1356969600000L, 1358006399999L, 2L);
 
+//        System.out.println(new TouristUtil().genSigContent("100001000002829", 1357833599999L, 1359647999999L, 2L));
+
+        new TouristUtil().generateTouristData("100001000002829", 1356969600000L, 1358006399999L, 2L);
+
+//        System.out.println((long)30 * 24 * 60 * 60 * 1000);
     }
 }

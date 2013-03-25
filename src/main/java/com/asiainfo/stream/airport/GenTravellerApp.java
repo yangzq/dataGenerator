@@ -1,30 +1,31 @@
-package com.asiainfo.stream;
+package com.asiainfo.stream.airport;
 
-import java.util.Random;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 import java.util.TimeZone;
 
 /**
  * Created with IntelliJ IDEA.
  * User: yangzq2
- * Date: 13-2-18
- * Time: 下午3:28
- * 数据生成主程序，分别调用普通用户、游客、工作人员信令数据生成程序。
+ * Date: 13-3-7
+ * Time: 上午9:46
  */
-public class GenApp {
+public class GenTravellerApp {
     Random random =  new Random();
+    static StringBuilder summaryInfo = new StringBuilder();
+    static final String fileDir = "airportfiles";
 
     /**
      * 按用户类型生成信令数据
      *
      * @param amount
      * 用户数据规模
-     * @param touristRate
-     * 游客比率
-     * @param workerRate
+     * @param travellerRate
+     * 抵港旅客比率
+     * @param employeeRate
      * 工作人员比率
      * @param startDate
      * 开始时间，毫秒数
@@ -35,42 +36,46 @@ public class GenApp {
      * @param disorderRate
      * 乱序比率
      */
-    void generateData(long amount, double touristRate, double workerRate, long startDate, long endDate, long genetateRate, double disorderRate){
-        System.out.println("Generate data, user amount: " + amount +
-                ", touristRate: " + touristRate +", workerRate: " + workerRate +
-                ", startDate: " + new Date(startDate) + ", endDate: " + new Date(endDate) +
-                ", genetateRate: " + genetateRate + ", disorderRate: " + disorderRate);
-        TouristUtil touristUtil = new TouristUtil();
-        WorkerUtil workerUtil = new WorkerUtil();
+    void generateData(long amount, double travellerRate, double employeeRate, long startDate, long endDate, long genetateRate, double disorderRate){
+        try {
+            System.out.println("Generate data, user amount: " + amount +
+                    ", travellerRate: " + travellerRate +", employeeRate: " + employeeRate +
+                    ", startDate: " + getTime(startDate) + ", endDate: " + getTime(endDate) +
+                    ", genetateRate: " + genetateRate + ", disorderRate: " + disorderRate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        EmployeeUtil employeeUtil = new EmployeeUtil();
+        TravellerUtil travellerUtil = new TravellerUtil();
         CommonUserUtil commonUserUtil = new CommonUserUtil();
-        StringBuilder imsiInfo = new StringBuilder();
+//        StringBuilder imsiInfo = new StringBuilder();
 
-        long startImsi = 100001000000001L;
+        long startImsi = 300001000000001L;
         String imsi;
 
         System.out.println("***************按imsi生成单独的信令数据文件***************");
         for(int i = 0; i < amount; i++){
-            startImsi += (long)(touristUtil.getNotZeroRandomInt(10000));
+            startImsi += (long)(travellerUtil.getNotZeroRandomInt(10000));
             imsi = Long.toString(startImsi);
             double tRate = Math.random();
-            if(tRate >= 0 && tRate <=touristRate){ // 游客
-                System.out.println(imsi + "\t" + "tourist" + "\t" + tRate);
-                touristUtil.generateTouristData(imsi, startDate, endDate, genetateRate);
-                imsiInfo.append(imsi + ": tourist" + "\r\n");
-            } else if(tRate > touristRate && tRate <= (workerRate + touristRate)){ // 工作人员
-                System.out.println(imsi + "\t" + "worker" + "\t" + tRate);
-                workerUtil.generateWorkerData(imsi, startDate, endDate, genetateRate);
-                imsiInfo.append(imsi + ": worker" + "\r\n");
+            if(tRate >= 0 && tRate <=travellerRate){ // 游客
+                System.out.println(imsi + "\t" + "traveller" + "\t" + tRate);
+                travellerUtil.generateTravellerData(imsi, startDate, endDate, genetateRate);
+//                imsiInfo.append(imsi + ": traveller" + "\r\n");
+            } else if(tRate > travellerRate && tRate <= (employeeRate + travellerRate)){ // 工作人员
+                System.out.println(imsi + "\t" + "employee" + "\t" + tRate);
+                employeeUtil.generateEmployeeData(imsi, startDate, endDate, genetateRate);
+//                imsiInfo.append(imsi + ": employee" + "\r\n");
             } else { // 普通用户
                 System.out.println(imsi + "\t" + tRate);
                 commonUserUtil.generateCommonUserData(imsi, startDate, endDate, genetateRate);
 //                imsiInfo.append(imsi + ": commonUser" + "\r\n");
             }
         }
-        System.out.println("***************游客/工作人员信息***************");
-        System.out.println(imsiInfo);
+        System.out.println("***************旅客/工作人员信息***************");
+        System.out.println(summaryInfo);
         System.out.println("*********************************************");
-        String sumFile = "files" + File.separator +"summary.csv";
+        String sumFile = fileDir + File.separator +"summary.csv";
         File summaryFile = new File(sumFile);
         BufferedOutputStream buff = null;
         if(!summaryFile.exists()){
@@ -78,7 +83,7 @@ public class GenApp {
                 boolean created = summaryFile.createNewFile();
                 System.out.println("new summary file: " + summaryFile.getAbsolutePath() + ": " + created);
                 buff = new BufferedOutputStream(new FileOutputStream(summaryFile));
-                buff.write(imsiInfo.toString().getBytes());
+                buff.write(summaryInfo.toString().getBytes());
                 buff.flush();
                 buff.close();
             } catch (IOException e){
@@ -89,8 +94,8 @@ public class GenApp {
             summaryFile = null;
         }
         System.out.println("***************mergeFile***************");
-        String sourcePath = "files" + File.separator +"tmp" + File.separator;
-        String destFile = "files" + File.separator +"data.csv";
+        String sourcePath = fileDir + File.separator +"tmp" + File.separator;
+        String destFile = fileDir + File.separator +"data.csv";
         mergeFile(sourcePath, destFile);
     }
 
@@ -114,7 +119,7 @@ public class GenApp {
             if (amount > numLimit){
                 System.out.println(String.format("amount > numLimit: %d > %d", amount, numLimit));
                 System.out.println("***************文件数目过多，合并生成中间文件***************");
-                String intermediateDataPath = "files" + File.separator +"intermediate" + File.separator;
+                String intermediateDataPath = fileDir + File.separator +"intermediate" + File.separator;
                 File intmDataDir = new File(intermediateDataPath);
                 if (!intmDataDir.exists()){
                     intmDataDir.mkdirs();
@@ -153,7 +158,7 @@ public class GenApp {
                         buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(fileArr[i])));
                         records[i] = buffs[i].readLine();
                         if (records[i] != null){
-                            lrecords[i] = Long.parseLong(records[i].split(",")[1]);
+                            lrecords[i] = Long.parseLong(records[i].split(",")[2]);
                         } else {
                             lrecords[i] = 0L;
                         }
@@ -171,7 +176,7 @@ public class GenApp {
                         buffOut.write((records[index] + "\r\n").getBytes());
                         records[index] = buffs[index].readLine();
                         if (records[index] != null){
-                            lrecords[index] = Long.parseLong(records[index].split(",")[1]);
+                            lrecords[index] = Long.parseLong(records[index].split(",")[2]);
                         } else {
                             lrecords[index] = 0L;
                         }
@@ -300,7 +305,24 @@ public class GenApp {
     public static void main(String[] args){
         long timebegin = System.currentTimeMillis();
 
-        String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-11 23:59:59.999";
+        /*
+        long amount = 100L;
+        double touristRate = 0.002D;
+        double workerRate = 0.001D;
+        String startDateStr = "2013-01-01 00:00:00.000";
+        String endDateStr = "2013-01-31 23:59:59.999";
+        long genetateRate = 2L;
+        double disorderRate = 0D;
+        if (args.length >= 7){
+            amount = Long.parseLong(args[0]);
+            touristRate = Double.parseDouble(args[1]);
+            workerRate = Double.parseDouble(args[2]);
+            startDateStr = args[3] + " 00:00:00.000";
+            endDateStr = args[4] + " 23:59:59.999";
+            genetateRate = Long.parseLong(args[5]);
+            disorderRate = Double.parseDouble(args[6]);
+        }
+
         long startDate = 0L, endDate = 0L;
         try {
             startDate = getTime(startDateStr);
@@ -310,14 +332,15 @@ public class GenApp {
         } catch (ParseException e){
             e.printStackTrace();
         }
-        new GenApp().generateData(100000L, 0.002D, 0.001D, startDate, endDate, 2L, 0D);
+        new GenTravellerApp().generateData(amount, touristRate, workerRate, startDate, endDate, genetateRate, disorderRate);
+        */
 
 
-//        new GenApp().mergeFile("files" + File.separator +"tmp" + File.separator, "files" + File.separator +"data.csv");
-//        File[] fileArr = {new File("files" + File.separator +"tmp" + File.separator + "100001000008494.csv"),
-//                new File("files" + File.separator +"tmp" + File.separator + "100001000015771.csv"),
-//                new File("files" + File.separator +"tmp" + File.separator + "100001005052764.csv"), };
-//        new GenApp().mergeFile(fileArr, "files" + File.separator +"test.csv");
+        new GenTravellerApp().mergeFile(fileDir + File.separator +"tmp" + File.separator, fileDir + File.separator +"data.csv");
+//        File[] fileArr = {new File(fileDir + File.separator +"tmp" + File.separator + "100001000008494.csv"),
+//                new File(fileDir + File.separator +"tmp" + File.separator + "100001000015771.csv"),
+//                new File(fileDir + File.separator +"tmp" + File.separator + "100001005052764.csv"), };
+//        new GenApp().mergeFile(fileArr, fileDir + File.separator +"test.csv");
 
 //        long[] testArr = {3L, 3L, 4L, 2L, 5L};
 //        long[] zeros = {0L, 0L, 0L, 0L, 0L};
@@ -344,6 +367,35 @@ public class GenApp {
         formatTime("2013-01-14 22:00:00.000");
         formatTime("2013-01-16 07:00:00.000");
 */
+        /*
+        // 生成测试样例数据
+        int amount = 1 * 24 * 31 - 1;
+//        long startTime = 1357891261000L;
+        long startTime = 0L;
+        try {
+            startTime = getTime("2013-01-01 00:00:00.000");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Random random1 = new Random();
+        int randomDelta = 3600 * 1000; // 1hour 1signal
+        int time = random1.nextInt(randomDelta);
+        try {
+            System.out.println(String.format("%d\t%d\t%s", 1, startTime + time, getTime(startTime + time)));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < amount; i++){
+            startTime += randomDelta;
+            time = random1.nextInt(randomDelta);
+            try {
+                System.out.println(String.format("%d\t%d\t%s", i+2, startTime + time, getTime(startTime + time)));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        */
+
         long timeend = System.currentTimeMillis();
         System.out.println("耗时：" + (timeend - timebegin));
     }
@@ -353,6 +405,10 @@ public class GenApp {
     }
     static String getTime(long s) throws ParseException {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(s- TimeZone.getDefault().getRawOffset()));
+    }
+
+    static String getDate(long s) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd").format(new Date(s- TimeZone.getDefault().getRawOffset()));
     }
 
     static void formatTime(String timeStr){

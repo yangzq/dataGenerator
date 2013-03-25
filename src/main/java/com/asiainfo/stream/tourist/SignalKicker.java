@@ -1,4 +1,4 @@
-package com.asiainfo.stream;
+package com.asiainfo.stream.tourist;
 
 import java.net.*;
 import java.io.*;

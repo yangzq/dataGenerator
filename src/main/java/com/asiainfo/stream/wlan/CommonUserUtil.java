@@ -1,4 +1,4 @@
-package com.asiainfo.stream;
+package com.asiainfo.stream.wlan;
 
 import java.io.*;
 import java.text.ParseException;
@@ -10,8 +10,8 @@ import java.util.Random;
 /**
  * Created with IntelliJ IDEA.
  * User: yangzq2
- * Date: 13-2-18
- * Time: 下午3:36
+ * Date: 13-3-7
+ * Time: 上午9:46
  */
 public class CommonUserUtil {
     private Random random = new Random();
@@ -31,7 +31,7 @@ public class CommonUserUtil {
      * cell字段为"tourist"时客户在景区
      */
     void generateCommonUserData(String imsi, long startDate, long endDate, long generateRate){
-        String filePath = "files" + File.separator +"tmp" + File.separator;
+        String filePath = GenWlanApp.fileDir + File.separator +"tmp" + File.separator;
         String fileName = imsi + ".csv";
 
         File file = createFile(filePath, fileName);
@@ -68,7 +68,7 @@ public class CommonUserUtil {
                 long signalTime = startDate + times[j];
                 String timeCheck = new String();
                 try {
-                    timeCheck = GenApp.getTime(signalTime);
+                    timeCheck = GenWlanApp.getTime(signalTime);
                 } catch (ParseException e){
                     e.printStackTrace();
                 }
