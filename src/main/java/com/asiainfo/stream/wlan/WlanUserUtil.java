@@ -17,9 +17,9 @@ public class WlanUserUtil {
     private Random random = new Random();
 
     /**
-     * 生成游客信令数据
+     * 生成wlan用户信令数据
      * @param imsi
-     * 游客用户Imsi
+     * wlan用户Imsi
      * @param startDate
      * 开始时间，正点对应毫秒数
      * @param endDate
@@ -27,8 +27,8 @@ public class WlanUserUtil {
      * @param generateRate
      * 生成信令的速率，条/秒
      *
-     * 数据格式：“imsi,time,loc,cell”
-     * cell字段为"tourist"时客户在景区
+     * 数据格式：“imsi,eventType,time,cause,lac,cell”
+     *
      */
     void generateTouristData(String imsi, long startDate, long endDate, long generateRate){
         String filePath = GenWlanApp.fileDir + File.separator +"tmp" + File.separator;
@@ -101,31 +101,6 @@ public class WlanUserUtil {
         return content.toString();
     }
 
-    int[] getRandomIntArr(int len, int maxValue){
-        int[] arr = new int[len];
-        for (int i = 0; i < len; i++){
-            arr[i] = 0;
-        }
-        if(maxValue > len){
-            for (int i = 0; i < len; i++){
-                int tmpInt = random.nextInt(maxValue);
-                for(int j = 0; j < len; j++){
-                    if(tmpInt == arr[j]){
-                        tmpInt = random.nextInt(maxValue);
-                        j = -1; // 重新从0开始循环，赋值为-1是由于还要先运行j++
-                    }
-                }
-                arr[i] = tmpInt;
-//                System.out.println(tmpInt);
-            }
-            Arrays.sort(arr);
-            return arr;
-        } else {
-            System.err.println("maxValue <= len, cannot generate random int Array.");
-            return null;
-        }
-    }
-
     int getNotZeroRandomInt (int ceiling){
         int i = random.nextInt(ceiling);
         while (i == 0){
@@ -191,7 +166,6 @@ public class WlanUserUtil {
 //        System.out.println(hours);
 
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String startDateStr = "2013-01-11 08:00:00.000", endDateStr = "2013-01-11 08:30:59.999";
         long startDate = 0L, endDate = 0L;
         try {

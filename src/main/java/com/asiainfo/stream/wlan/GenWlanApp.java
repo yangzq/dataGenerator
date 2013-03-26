@@ -217,7 +217,7 @@ public class GenWlanApp {
                 buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFileArr[i])));
                 records[i] = buffs[i].readLine();
                 if (records[i] != null){
-                    lrecords[i] = Long.parseLong(records[i].split(",")[1]);
+                    lrecords[i] = Long.parseLong(records[i].split(",")[2]);
                 } else {
                     lrecords[i] = 0L;
                 }
@@ -231,7 +231,7 @@ public class GenWlanApp {
                 buffOut.write((records[index] + "\r\n").getBytes());
                 records[index] = buffs[index].readLine();
                 if (records[index] != null){
-                    lrecords[index] = Long.parseLong(records[index].split(",")[1]);
+                    lrecords[index] = Long.parseLong(records[index].split(",")[2]);
                 } else {
                     lrecords[index] = 0L;
                 }
@@ -293,17 +293,17 @@ public class GenWlanApp {
         long timebegin = System.currentTimeMillis();
 
 
-        long amount = 100L;
+        long amount = 1000L;
         double wlanRate = 0.02D;
         String startDateStr = "2013-01-11 08:00:00.000";
-        String endDateStr = "2013-01-11 08:30:00.000";
+        String endDateStr = "2013-01-11 08:30:59.999";
         long genetateRate = 2L;
         double disorderRate = 0D;
         if (args.length >= 6){
             amount = Long.parseLong(args[0]);
             wlanRate = Double.parseDouble(args[1]);
             startDateStr = "2013-01-11 " + args[2] + ".000";
-            endDateStr = "2013-01-11 " + args[3] + ".000";
+            endDateStr = "2013-01-11 " + args[3] + ".999";
             genetateRate = Long.parseLong(args[4]);
             disorderRate = Double.parseDouble(args[5]);
         } else {
