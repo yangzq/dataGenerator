@@ -16,6 +16,7 @@ import java.util.TimeZone;
 public class GenWlanApp {
     Random random =  new Random();
     static final String fileDir = "wlanfiles";
+    static StringBuilder summaryInfo = new StringBuilder();
 
     /**
      * 按用户类型生成信令数据
@@ -34,13 +35,18 @@ public class GenWlanApp {
      * 乱序比率
      */
     void generateData(long amount, double wlanRate, long startDate, long endDate, long generateRate, double disorderRate){
-        System.out.println("Generate data, user amount: " + amount +
-                ", wlanUserRate: " + wlanRate +
-                ", startDate: " + new Date(startDate) + ", endDate: " + new Date(endDate) +
-                ", generateRate: " + generateRate + ", disorderRate: " + disorderRate);
+        try {
+            System.out.println("Generate data, user amount: " + amount +
+                    ", wlanUserRate: " + String.format("%s",wlanRate) +
+                    ", startDate: " + getTime(startDate) + ", endDate: " + getTime(endDate) +
+                    ", generateRate: " + generateRate + ", disorderRate: " + disorderRate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         WlanUserUtil wlanUserUtil = new WlanUserUtil();
         com.asiainfo.stream.wlan.CommonUserUtil commonUserUtil = new com.asiainfo.stream.wlan.CommonUserUtil();
-        StringBuilder imsiInfo = new StringBuilder();
+//        StringBuilder imsiInfo = new StringBuilder();
 
         long startImsi = 200001000000001L;
         String imsi;
@@ -53,15 +59,15 @@ public class GenWlanApp {
             if(tRate >= 0 && tRate <=wlanRate){ // WLAN用户
                 System.out.println(imsi + "\t" + "wlan" + "\t" + tRate);
                 wlanUserUtil.generateTouristData(imsi, startDate, endDate, generateRate);
-                imsiInfo.append(imsi + ": wlan" + "\r\n");
+//                imsiInfo.append(imsi + ": wlan" + "\r\n");
             } else { // 普通用户
                 System.out.println(imsi + "\t" + tRate);
                 commonUserUtil.generateCommonUserData(imsi, startDate, endDate, generateRate);
 //                imsiInfo.append(imsi + ": commonUser" + "\r\n");
             }
         }
-        System.out.println("***************WLAN/普通用户信息***************");
-        System.out.println(imsiInfo);
+        System.out.println("*****************WLAN用户信息*****************");
+        System.out.println(summaryInfo);
         System.out.println("*********************************************");
         String sumFile = fileDir + File.separator +"summary.csv";
         File summaryFile = new File(sumFile);
@@ -71,7 +77,7 @@ public class GenWlanApp {
                 boolean created = summaryFile.createNewFile();
                 System.out.println("new summary file: " + summaryFile.getAbsolutePath() + ": " + created);
                 buff = new BufferedOutputStream(new FileOutputStream(summaryFile));
-                buff.write(imsiInfo.toString().getBytes());
+                buff.write(summaryInfo.toString().getBytes());
                 buff.flush();
                 buff.close();
             } catch (IOException e){
@@ -85,6 +91,7 @@ public class GenWlanApp {
         String sourcePath = fileDir + File.separator +"tmp" + File.separator;
         String destFile = fileDir + File.separator +"data.csv";
         mergeFile(sourcePath, destFile);
+
     }
 
     File mergeFile(String sourceDir, String destFile){
@@ -149,17 +156,17 @@ public class GenWlanApp {
                         } else {
                             lrecords[i] = 0L;
                         }
-                        try {
-                            System.out.println(records[i] + " with time: " + GenWlanApp.getTime(lrecords[i]) + "\t" + i);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
                     }
                     BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
                     int index = findSmallest(lrecords);
                     while (index >= 0 && lrecords[index] > 0){
 //                        System.out.println("index :" + index);
 //                        System.out.println("Write data: " + records[index] + " , file: " + fileArr[index].getName());
+//                        try {
+//                            System.out.println(records[index] + " with time: " + GenWlanApp.getTime(lrecords[index]) + "\t" + index);
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
                         buffOut.write((records[index] + "\r\n").getBytes());
                         records[index] = buffs[index].readLine();
                         if (records[index] != null){

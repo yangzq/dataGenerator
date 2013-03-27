@@ -57,18 +57,23 @@ public class WlanUserUtil {
 
         long minutes = endDate / (60 * 1000) - startDate / (60 * 1000) + 1;
         int connMin = random.nextInt((int)minutes - 16);
-        int endMin = (int)minutes - random.nextInt((int)minutes - 15 - connMin);
+        int endMin = (int)minutes - random.nextInt((int)minutes - connMin - 16) - 1;
 
         long connTime = startDate + connMin * 60 * 1000;
         long endTime = startDate + endMin * 60 * 1000;
         try {
-            System.out.print(String.format("统计生成%d分钟数据；连接WAP时长%d分钟，为第%d至%d分钟即：%s~%s",
-                    minutes,
-                    (endMin - connMin),
-                    connMin,
-                    endMin,
-                    GenWlanApp.getTime(connTime),
-                    GenWlanApp.getTime(endTime)));
+//            String info = String.format("统计生成%d分钟数据；连接WAP时长%d分钟，为第%d至%d分钟即：%s~%s",
+//                    minutes,
+//                    (endMin - connMin),
+//                    connMin,
+//                    endMin,
+//                    GenWlanApp.getTime(connTime),
+//                    GenWlanApp.getTime(endTime));
+//            System.out.print(info);
+            String info = null;
+            info = String.format("%s: wlan\t%d min: %s~%s\r\n", imsi, (endMin - connMin), GenWlanApp.getTime(connTime), GenWlanApp.getTime(endTime));
+            GenWlanApp.summaryInfo.append(info);
+            System.out.println(info);
         } catch (ParseException e) {
             e.printStackTrace();
         }
