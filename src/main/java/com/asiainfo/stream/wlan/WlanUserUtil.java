@@ -1,5 +1,7 @@
 package com.asiainfo.stream.wlan;
 
+import com.asiainfo.stream.util.TimeUtil;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,7 +63,7 @@ public class WlanUserUtil {
 
         long connTime = startDate + connMin * 60 * 1000;
         long endTime = startDate + endMin * 60 * 1000;
-        try {
+
 //            String info = String.format("统计生成%d分钟数据；连接WAP时长%d分钟，为第%d至%d分钟即：%s~%s",
 //                    minutes,
 //                    (endMin - connMin),
@@ -71,12 +73,10 @@ public class WlanUserUtil {
 //                    GenWlanApp.getTime(endTime));
 //            System.out.print(info);
             String info = null;
-            info = String.format("%s: wlan\t%d min: %s~%s\r\n", imsi, (endMin - connMin), GenWlanApp.getTime(connTime), GenWlanApp.getTime(endTime));
+            info = String.format("%s: wlan\t%d min: %s~%s\r\n", imsi, (endMin - connMin), TimeUtil.getTime(connTime), TimeUtil.getTime(endTime));
             GenWlanApp.summaryInfo.append(info);
             System.out.println(info);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
         System.out.println();
 
         for(int i = 0; i < minutes; i++){
@@ -84,11 +84,9 @@ public class WlanUserUtil {
             for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++){
                 long signalTime = startDate + times[j];
                 String timeCheck = new String();
-                try {
-                    timeCheck = GenWlanApp.getTime(signalTime);
-                } catch (ParseException e){
-                    e.printStackTrace();
-                }
+
+                    timeCheck = TimeUtil.getTime(signalTime);
+
                 if (i == connMin && j == 0) {
                     content.append(imsi + ",02," + signalTime + ",cause,ft,home,calling,called,apn,sgsnIp,res2," + timeCheck + "\r\n");
                 } else if (i == endMin && j == generateRate - 1) {
@@ -174,10 +172,10 @@ public class WlanUserUtil {
         String startDateStr = "2013-01-11 08:00:00.000", endDateStr = "2013-01-11 08:30:59.999";
         long startDate = 0L, endDate = 0L;
         try {
-            startDate = GenWlanApp.getTime(startDateStr);
-            endDate = GenWlanApp.getTime(endDateStr);
-            System.out.println(startDateStr + "\t"+startDate+"\t" + GenWlanApp.getTime(startDate));
-            System.out.println(endDateStr + "\t"+endDate+"\t" + GenWlanApp.getTime(endDate));
+            startDate = TimeUtil.getTime(startDateStr);
+            endDate = TimeUtil.getTime(endDateStr);
+            System.out.println(startDateStr + "\t"+startDate+"\t" + TimeUtil.getTime(startDate));
+            System.out.println(endDateStr + "\t"+endDate+"\t" + TimeUtil.getTime(endDate));
         } catch (ParseException e){
             e.printStackTrace();
         }

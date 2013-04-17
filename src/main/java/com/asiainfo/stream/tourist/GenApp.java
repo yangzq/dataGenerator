@@ -1,11 +1,11 @@
 package com.asiainfo.stream.tourist;
 
+import com.asiainfo.stream.util.TimeUtil;
+
 import java.util.Random;
-import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.io.*;
-import java.util.TimeZone;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,37 +15,27 @@ import java.util.TimeZone;
  * 数据生成主程序，分别调用普通用户、游客、工作人员信令数据生成程序。
  */
 public class GenApp {
-    Random random =  new Random();
+    Random random = new Random();
     static StringBuilder summaryInfo = new StringBuilder();
     static final String fileDir = "files";
 
     /**
      * 按用户类型生成信令数据
      *
-     * @param amount
-     * 用户数据规模
-     * @param touristRate
-     * 游客比率
-     * @param workerRate
-     * 工作人员比率
-     * @param startDate
-     * 开始时间，毫秒数
-     * @param endDate
-     * 结束时间，毫秒数
-     * @param genetateRate
-     * 信令数据生成速率，条/时
-     * @param disorderRate
-     * 乱序比率
+     * @param amount       用户数据规模
+     * @param touristRate  游客比率
+     * @param workerRate   工作人员比率
+     * @param startDate    开始时间，毫秒数
+     * @param endDate      结束时间，毫秒数
+     * @param genetateRate 信令数据生成速率，条/时
+     * @param disorderRate 乱序比率
      */
-    void generateData(long amount, double touristRate, double workerRate, long startDate, long endDate, long genetateRate, double disorderRate){
-        try {
-            System.out.println("Generate data, user amount: " + amount +
-                    ", touristRate: " + touristRate +", workerRate: " + workerRate +
-                    ", startDate: " + getTime(startDate) + ", endDate: " + getTime(endDate) +
-                    ", genetateRate: " + genetateRate + ", disorderRate: " + disorderRate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    void generateData(long amount, double touristRate, double workerRate, long startDate, long endDate, long genetateRate, double disorderRate) {
+        System.out.println("Generate data, user amount: " + amount +
+                ", touristRate: " + touristRate + ", workerRate: " + workerRate +
+                ", startDate: " + TimeUtil.getTime(startDate) + ", endDate: " + TimeUtil.getTime(endDate) +
+                ", genetateRate: " + genetateRate + ", disorderRate: " + disorderRate);
+
         TouristUtil touristUtil = new TouristUtil();
         WorkerUtil workerUtil = new WorkerUtil();
         CommonUserUtil commonUserUtil = new CommonUserUtil();
@@ -55,15 +45,15 @@ public class GenApp {
         String imsi;
 
         System.out.println("***************按imsi生成单独的信令数据文件***************");
-        for(int i = 0; i < amount; i++){
-            startImsi += (long)(touristUtil.getNotZeroRandomInt(10000));
+        for (int i = 0; i < amount; i++) {
+            startImsi += (long) (touristUtil.getNotZeroRandomInt(10000));
             imsi = Long.toString(startImsi);
             double tRate = Math.random();
-            if(tRate >= 0 && tRate <=touristRate){ // 游客
+            if (tRate >= 0 && tRate <= touristRate) { // 游客
                 System.out.println(imsi + "\t" + "tourist" + "\t" + tRate);
                 touristUtil.generateTouristData(imsi, startDate, endDate, genetateRate);
 //                imsiInfo.append(imsi + ": tourist" + "\r\n");
-            } else if(tRate > touristRate && tRate <= (workerRate + touristRate)){ // 工作人员
+            } else if (tRate > touristRate && tRate <= (workerRate + touristRate)) { // 工作人员
                 System.out.println(imsi + "\t" + "worker" + "\t" + tRate);
                 workerUtil.generateWorkerData(imsi, startDate, endDate, genetateRate);
 //                imsiInfo.append(imsi + ": worker" + "\r\n");
@@ -76,18 +66,18 @@ public class GenApp {
         System.out.println("***************游客/工作人员信息***************");
         System.out.println(summaryInfo);
         System.out.println("*********************************************");
-        String sumFile = fileDir + File.separator +"summary.csv";
+        String sumFile = fileDir + File.separator + "summary.csv";
         File summaryFile = new File(sumFile);
         BufferedOutputStream buff = null;
-        if(!summaryFile.exists()){
-            try{
+        if (!summaryFile.exists()) {
+            try {
                 boolean created = summaryFile.createNewFile();
                 System.out.println("new summary file: " + summaryFile.getAbsolutePath() + ": " + created);
                 buff = new BufferedOutputStream(new FileOutputStream(summaryFile));
                 buff.write(summaryInfo.toString().getBytes());
                 buff.flush();
                 buff.close();
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -95,15 +85,15 @@ public class GenApp {
             summaryFile = null;
         }
         System.out.println("***************mergeFile***************");
-        String sourcePath = fileDir + File.separator +"tmp" + File.separator;
-        String destFile = fileDir + File.separator +"data.csv";
+        String sourcePath = fileDir + File.separator + "tmp" + File.separator;
+        String destFile = fileDir + File.separator + "data.csv";
         mergeFile(sourcePath, destFile);
     }
 
-    File mergeFile(String sourceDir, String destFile){
+    File mergeFile(String sourceDir, String destFile) {
         File file = new File(destFile);
         File tmpDir = new File(sourceDir);
-        if(tmpDir.exists() && tmpDir.isDirectory()){
+        if (tmpDir.exists() && tmpDir.isDirectory()) {
             FilenameFilter selector = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -117,48 +107,48 @@ public class GenApp {
             int amount = fileArr.length;
             System.out.println(String.format("源文件总数：%d", amount));
             int numLimit = 1000; // 多余10000文件时，递归处理
-            if (amount > numLimit){
+            if (amount > numLimit) {
                 System.out.println(String.format("amount > numLimit: %d > %d", amount, numLimit));
                 System.out.println("***************文件数目过多，合并生成中间文件***************");
-                String intermediateDataPath = fileDir + File.separator +"intermediate" + File.separator;
+                String intermediateDataPath = fileDir + File.separator + "intermediate" + File.separator;
                 File intmDataDir = new File(intermediateDataPath);
-                if (!intmDataDir.exists()){
+                if (!intmDataDir.exists()) {
                     intmDataDir.mkdirs();
                 }
-                if (intmDataDir.isDirectory()){
+                if (intmDataDir.isDirectory()) {
                     File[] iFileArr = new File[numLimit];
                     int nloop = (amount % numLimit == 0) ? (amount / numLimit) : (amount / numLimit + 1);
-                    for (int i = 0; i < nloop; i++){
+                    for (int i = 0; i < nloop; i++) {
                         System.out.println("loop num: " + i);
-                        for (int j = 0; j < numLimit; j++){
+                        for (int j = 0; j < numLimit; j++) {
                             iFileArr[j] = fileArr[i * numLimit + j];
 //                            System.out.println("inner loop :" + j + ": " + iFileArr[j].getAbsolutePath());
                         }
                         String destIntmFile = intermediateDataPath + i + ".csv";
-                        mergeFile(iFileArr, destIntmFile );
+                        mergeFile(iFileArr, destIntmFile);
                     }
                     mergeFile(intermediateDataPath, destFile);
                 }
             } else {
-                if(file.exists()){
+                if (file.exists()) {
                     System.out.print("file: " + file.getAbsolutePath() + " already exists. Now delete it: ");
                     boolean deleted = file.delete();
                     System.out.println(deleted ? "success" : "fail");
                 }
-                try{
+                try {
                     boolean created = file.createNewFile();
                     System.out.println("create new target file: " + file.getAbsolutePath() + ": " + (created ? "success" : "fail"));
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 BufferedReader[] buffs = new BufferedReader[amount];
                 String[] records = new String[amount];
                 long[] lrecords = new long[amount];
-                try{
-                    for(int i = 0; i < amount; i++){ // 初始化
+                try {
+                    for (int i = 0; i < amount; i++) { // 初始化
                         buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(fileArr[i])));
                         records[i] = buffs[i].readLine();
-                        if (records[i] != null){
+                        if (records[i] != null) {
                             lrecords[i] = Long.parseLong(records[i].split(",")[1]);
                         } else {
                             lrecords[i] = 0L;
@@ -166,7 +156,7 @@ public class GenApp {
                     }
                     BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
                     int index = findSmallest(lrecords);
-                    while (index >= 0 && lrecords[index] > 0){
+                    while (index >= 0 && lrecords[index] > 0) {
 //                        System.out.println("index :" + index);
 //                        System.out.println("Write data: " + records[index] + " , file: " + fileArr[index].getName());
 //                        try {
@@ -176,7 +166,7 @@ public class GenApp {
 //                        }
                         buffOut.write((records[index] + "\r\n").getBytes());
                         records[index] = buffs[index].readLine();
-                        if (records[index] != null){
+                        if (records[index] != null) {
                             lrecords[index] = Long.parseLong(records[index].split(",")[1]);
                         } else {
                             lrecords[index] = 0L;
@@ -187,13 +177,13 @@ public class GenApp {
 
                     buffOut.flush();
                     buffOut.close();
-                    for (int i = 0; i < amount; i++){
-                        if (buffs[i] != null){
+                    for (int i = 0; i < amount; i++) {
+                        if (buffs[i] != null) {
                             buffs[i].close();
                             System.out.println(String.format("Close BufferedReader streams: %s", i));
                         }
                     }
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -204,17 +194,17 @@ public class GenApp {
         return file;
     }
 
-    File mergeFile(File[] sourceFileArr, String destFile){
+    File mergeFile(File[] sourceFileArr, String destFile) {
         File file = new File(destFile);
-        if(file.exists()){
+        if (file.exists()) {
             System.out.print("file: " + file.getAbsolutePath() + " already exists. Now delete it: ");
             boolean deleted = file.delete();
             System.out.println(deleted ? "succeed" : "fail");
         }
-        try{
+        try {
             boolean created = file.createNewFile();
             System.out.println("create new target file: " + file.getAbsolutePath() + ": " + (created ? "success" : "fail"));
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -226,11 +216,11 @@ public class GenApp {
         BufferedReader[] buffs = new BufferedReader[amount];
         String[] records = new String[amount];
         long[] lrecords = new long[amount];
-        try{
-            for(int i = 0; i < amount; i++){
+        try {
+            for (int i = 0; i < amount; i++) {
                 buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFileArr[i])));
                 records[i] = buffs[i].readLine();
-                if (records[i] != null){
+                if (records[i] != null) {
                     lrecords[i] = Long.parseLong(records[i].split(",")[1]);
                 } else {
                     lrecords[i] = 0L;
@@ -239,12 +229,12 @@ public class GenApp {
             }
             BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
             int index = findSmallest(lrecords);
-            while (index >= 0 && lrecords[index] > 0){
+            while (index >= 0 && lrecords[index] > 0) {
 //                System.out.println("index :" + index);
 //                System.out.println("Write data: " + records[index] + " , file: " + sourceFileArr[index].getName());
                 buffOut.write((records[index] + "\r\n").getBytes());
                 records[index] = buffs[index].readLine();
-                if (records[index] != null){
+                if (records[index] != null) {
                     lrecords[index] = Long.parseLong(records[index].split(",")[1]);
                 } else {
                     lrecords[index] = 0L;
@@ -255,55 +245,56 @@ public class GenApp {
 
             buffOut.flush();
             buffOut.close();
-            for (int i = 0; i < amount; i++){
-                if (buffs[i] != null){
+            for (int i = 0; i < amount; i++) {
+                if (buffs[i] != null) {
                     buffs[i].close();
                     System.out.println(String.format("Close BufferedReader streams: %d", i));
                 }
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return file;
     }
 
-    int findSmallest(long[] arr){
+    int findSmallest(long[] arr) {
         int index = 0;
         long value = arr[0];
         boolean allZero = true;
-        if (arr.length > 1){
-            for (int i = 1; i < arr.length && value == 0; i++){
-                if (arr[i] > 0){
+        if (arr.length > 1) {
+            for (int i = 1; i < arr.length && value == 0; i++) {
+                if (arr[i] > 0) {
                     allZero = false;
                     value = arr[i];
                     index = i;
                     break;
                 }
             }
-            if (index == arr.length){
+            if (index == arr.length) {
                 index = -1;
                 return index;
             }
-            for (int i = index; i < arr.length; i++){
-                if (arr[i] < value && arr[i] > 0){
+            for (int i = index; i < arr.length; i++) {
+                if (arr[i] < value && arr[i] > 0) {
                     value = arr[i];
                     index = i;
                 }
-                if (arr[i] > 0){
+                if (arr[i] > 0) {
                     allZero = false;
                 }
             }
         } else {
-            if (arr[0] > 0){
+            if (arr[0] > 0) {
                 allZero = false;
             }
         }
-        if (allZero){
+        if (allZero) {
             index = -1;
         }
         return index;
     }
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         long timebegin = System.currentTimeMillis();
 
         long amount = 100L;
@@ -327,15 +318,25 @@ public class GenApp {
 
         long startDate = 0L, endDate = 0L;
         try {
-            startDate = getTime(startDateStr);
-            endDate = getTime(endDateStr);
-            System.out.println(startDateStr+"\t"+"\t"+startDate+"\t"+getTime(startDate));
-            System.out.println(endDateStr+"\t"+"\t"+endDate+"\t"+getTime(endDate));
+            startDate = TimeUtil.getTime(startDateStr);
+            endDate = TimeUtil.getTime(endDateStr);
+            System.out.println(startDateStr+"\t" + "\t"+startDate+"\t" + TimeUtil.getTime(startDate));
+            System.out.println(endDateStr+"\t" + "\t"+endDate+"\t" + TimeUtil.getTime(endDate));
         } catch (ParseException e){
             e.printStackTrace();
         }
         new GenApp().generateData(amount, touristRate, workerRate, startDate, endDate, genetateRate, disorderRate);
 
+        /*
+        try {
+            String startDateStr = "2013-01-01 00:00:00.000";
+            System.out.println("startDateStr = " + startDateStr + "/" + TimeUtil.getTime(startDateStr));
+            String endDateStr = "2013-01-10 23:59:59.999";
+            System.out.println("endDateStr = " + endDateStr + "/" + TimeUtil.getTime(endDateStr));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        */
 
 //        new GenApp().mergeFile(fileDir + File.separator +"tmp" + File.separator, fileDir + File.separator +"data.csv");
 //        File[] fileArr = {new File(fileDir + File.separator +"tmp" + File.separator + "100001000008494.csv"),
@@ -372,24 +373,13 @@ public class GenApp {
         System.out.println("耗时：" + (timeend - timebegin));
     }
 
-    static long getTime(String s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z").parse(s + " +0000").getTime();
-    }
-    static String getTime(long s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(s- TimeZone.getDefault().getRawOffset()));
-    }
-
-    static String getDate(long s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd").format(new Date(s- TimeZone.getDefault().getRawOffset()));
-    }
-
-    static void formatTime(String timeStr){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        try {
-            long ltime = sdf.parse(timeStr).getTime();
-            System.out.println(String.format("%s",ltime));
-        } catch (ParseException e){
-            e.printStackTrace();
-        }
-    }
+//    static void formatTime(String timeStr) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        try {
+//            long ltime = sdf.parse(timeStr).getTime();
+//            System.out.println(String.format("%s", ltime));
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

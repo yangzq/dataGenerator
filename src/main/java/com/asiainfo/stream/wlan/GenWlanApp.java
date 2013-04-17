@@ -1,5 +1,7 @@
 package com.asiainfo.stream.wlan;
 
+import com.asiainfo.stream.util.TimeUtil;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,35 +16,27 @@ import java.util.TimeZone;
  * Time: 上午9:43
  */
 public class GenWlanApp {
-    Random random =  new Random();
+    Random random = new Random();
     static final String fileDir = "wlanfiles";
     static StringBuilder summaryInfo = new StringBuilder();
 
     /**
      * 按用户类型生成信令数据
      *
-     * @param amount
-     * 用户数据规模
-     * @param wlanRate
-     * WLAN用户比率
-     * @param startDate
-     * 开始时间，毫秒数
-     * @param endDate
-     * 结束时间，毫秒数
-     * @param generateRate
-     * 信令数据生成速率，条/分钟
-     * @param disorderRate
-     * 乱序比率
+     * @param amount       用户数据规模
+     * @param wlanRate     WLAN用户比率
+     * @param startDate    开始时间，毫秒数
+     * @param endDate      结束时间，毫秒数
+     * @param generateRate 信令数据生成速率，条/分钟
+     * @param disorderRate 乱序比率
      */
-    void generateData(long amount, double wlanRate, long startDate, long endDate, long generateRate, double disorderRate){
-        try {
-            System.out.println("Generate data, user amount: " + amount +
-                    ", wlanUserRate: " + String.format("%s",wlanRate) +
-                    ", startDate: " + getTime(startDate) + ", endDate: " + getTime(endDate) +
-                    ", generateRate: " + generateRate + ", disorderRate: " + disorderRate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    void generateData(long amount, double wlanRate, long startDate, long endDate, long generateRate, double disorderRate) {
+
+        System.out.println("Generate data, user amount: " + amount +
+                ", wlanUserRate: " + String.format("%s", wlanRate) +
+                ", startDate: " + TimeUtil.getTime(startDate) + ", endDate: " + TimeUtil.getTime(endDate) +
+                ", generateRate: " + generateRate + ", disorderRate: " + disorderRate);
+
 
         WlanUserUtil wlanUserUtil = new WlanUserUtil();
         com.asiainfo.stream.wlan.CommonUserUtil commonUserUtil = new com.asiainfo.stream.wlan.CommonUserUtil();
@@ -52,11 +46,11 @@ public class GenWlanApp {
         String imsi;
 
         System.out.println("***************按imsi生成单独的信令数据文件***************");
-        for(int i = 0; i < amount; i++){
-            startImsi += (long)(wlanUserUtil.getNotZeroRandomInt(10000));
+        for (int i = 0; i < amount; i++) {
+            startImsi += (long) (wlanUserUtil.getNotZeroRandomInt(10000));
             imsi = Long.toString(startImsi);
             double tRate = Math.random();
-            if(tRate >= 0 && tRate <=wlanRate){ // WLAN用户
+            if (tRate >= 0 && tRate <= wlanRate) { // WLAN用户
                 System.out.println(imsi + "\t" + "wlan" + "\t" + tRate);
                 wlanUserUtil.generateTouristData(imsi, startDate, endDate, generateRate);
 //                imsiInfo.append(imsi + ": wlan" + "\r\n");
@@ -69,18 +63,18 @@ public class GenWlanApp {
         System.out.println("*****************WLAN用户信息*****************");
         System.out.println(summaryInfo);
         System.out.println("*********************************************");
-        String sumFile = fileDir + File.separator +"summary.csv";
+        String sumFile = fileDir + File.separator + "summary.csv";
         File summaryFile = new File(sumFile);
         BufferedOutputStream buff = null;
-        if(!summaryFile.exists()){
-            try{
+        if (!summaryFile.exists()) {
+            try {
                 boolean created = summaryFile.createNewFile();
                 System.out.println("new summary file: " + summaryFile.getAbsolutePath() + ": " + created);
                 buff = new BufferedOutputStream(new FileOutputStream(summaryFile));
                 buff.write(summaryInfo.toString().getBytes());
                 buff.flush();
                 buff.close();
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -88,16 +82,16 @@ public class GenWlanApp {
             summaryFile = null;
         }
         System.out.println("***************mergeFile***************");
-        String sourcePath = fileDir + File.separator +"tmp" + File.separator;
-        String destFile = fileDir + File.separator +"data.csv";
+        String sourcePath = fileDir + File.separator + "tmp" + File.separator;
+        String destFile = fileDir + File.separator + "data.csv";
         mergeFile(sourcePath, destFile);
 
     }
 
-    File mergeFile(String sourceDir, String destFile){
+    File mergeFile(String sourceDir, String destFile) {
         File file = new File(destFile);
         File tmpDir = new File(sourceDir);
-        if(tmpDir.exists() && tmpDir.isDirectory()){
+        if (tmpDir.exists() && tmpDir.isDirectory()) {
             FilenameFilter selector = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -111,47 +105,47 @@ public class GenWlanApp {
             int amount = fileArr.length;
             System.out.println("源文件总数：" + amount);
             int numLimit = 1000; // 多余10000文件时，递归处理
-            if (amount > numLimit){
+            if (amount > numLimit) {
                 System.out.println("amount > numLimit: " + amount + " > " + numLimit);
-                String intermediateDataPath = fileDir + File.separator +"intermediate" + File.separator;
+                String intermediateDataPath = fileDir + File.separator + "intermediate" + File.separator;
                 File intmDataDir = new File(intermediateDataPath);
-                if (!intmDataDir.exists()){
+                if (!intmDataDir.exists()) {
                     intmDataDir.mkdirs();
                 }
-                if (intmDataDir.isDirectory()){
+                if (intmDataDir.isDirectory()) {
                     File[] iFileArr = new File[numLimit];
                     int nloop = (amount % numLimit == 0) ? (amount / numLimit) : (amount / numLimit + 1);
-                    for (int i = 0; i < nloop; i++){
+                    for (int i = 0; i < nloop; i++) {
 //                        System.out.println("loop num: " + i);
-                        for (int j = 0; j < numLimit; j++){
+                        for (int j = 0; j < numLimit; j++) {
                             iFileArr[j] = fileArr[i * numLimit + j];
 //                            System.out.println("inner loop :" + j + ": " + iFileArr[j].getAbsolutePath());
                         }
                         String destIntmFile = intermediateDataPath + i + ".csv";
-                        mergeFile(iFileArr, destIntmFile );
+                        mergeFile(iFileArr, destIntmFile);
                     }
                     mergeFile(intermediateDataPath, destFile);
                 }
             } else {
-                if(file.exists()){
+                if (file.exists()) {
                     System.out.print("file: " + file.getAbsolutePath() + " already exists. Now delete it: ");
                     boolean deleted = file.delete();
                     System.out.println(deleted ? "success" : "fail");
                 }
-                try{
+                try {
                     boolean created = file.createNewFile();
                     System.out.println("create new target file: " + file.getAbsolutePath() + ": " + created);
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 BufferedReader[] buffs = new BufferedReader[amount];
                 String[] records = new String[amount];
                 long[] lrecords = new long[amount];
-                try{
-                    for(int i = 0; i < amount; i++){
+                try {
+                    for (int i = 0; i < amount; i++) {
                         buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(fileArr[i])));
                         records[i] = buffs[i].readLine();
-                        if (records[i] != null){
+                        if (records[i] != null) {
                             lrecords[i] = Long.parseLong(records[i].split(",")[2]);
                         } else {
                             lrecords[i] = 0L;
@@ -159,7 +153,7 @@ public class GenWlanApp {
                     }
                     BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
                     int index = findSmallest(lrecords);
-                    while (index >= 0 && lrecords[index] > 0){
+                    while (index >= 0 && lrecords[index] > 0) {
 //                        System.out.println("index :" + index);
 //                        System.out.println("Write data: " + records[index] + " , file: " + fileArr[index].getName());
 //                        try {
@@ -169,7 +163,7 @@ public class GenWlanApp {
 //                        }
                         buffOut.write((records[index] + "\r\n").getBytes());
                         records[index] = buffs[index].readLine();
-                        if (records[index] != null){
+                        if (records[index] != null) {
                             lrecords[index] = Long.parseLong(records[index].split(",")[2]);
                         } else {
                             lrecords[index] = 0L;
@@ -180,13 +174,13 @@ public class GenWlanApp {
 
                     buffOut.flush();
                     buffOut.close();
-                    for (int i = 0; i < amount; i++){
-                        if (buffs[i] != null){
+                    for (int i = 0; i < amount; i++) {
+                        if (buffs[i] != null) {
                             buffs[i].close();
                             System.out.println("Close BufferedReader streams: " + i);
                         }
                     }
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -197,17 +191,17 @@ public class GenWlanApp {
         return file;
     }
 
-    File mergeFile(File[] sourceFileArr, String destFile){
+    File mergeFile(File[] sourceFileArr, String destFile) {
         File file = new File(destFile);
-        if(file.exists()){
+        if (file.exists()) {
             System.out.print("file: " + file.getAbsolutePath() + " already exists. Now delete it: ");
             boolean deleted = file.delete();
             System.out.println(deleted ? "succeed" : "fail");
         }
-        try{
+        try {
             boolean created = file.createNewFile();
             System.out.println("create new target file: " + file.getAbsolutePath() + ": " + (created ? "success" : "fail"));
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -219,11 +213,11 @@ public class GenWlanApp {
         BufferedReader[] buffs = new BufferedReader[amount];
         String[] records = new String[amount];
         long[] lrecords = new long[amount];
-        try{
-            for(int i = 0; i < amount; i++){
+        try {
+            for (int i = 0; i < amount; i++) {
                 buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFileArr[i])));
                 records[i] = buffs[i].readLine();
-                if (records[i] != null){
+                if (records[i] != null) {
                     lrecords[i] = Long.parseLong(records[i].split(",")[2]);
                 } else {
                     lrecords[i] = 0L;
@@ -232,12 +226,12 @@ public class GenWlanApp {
             }
             BufferedOutputStream buffOut = new BufferedOutputStream(new FileOutputStream(file));
             int index = findSmallest(lrecords);
-            while (index >= 0 && lrecords[index] > 0){
+            while (index >= 0 && lrecords[index] > 0) {
 //                System.out.println("index :" + index);
 //                System.out.println("Write data: " + records[index] + " , file: " + sourceFileArr[index].getName());
                 buffOut.write((records[index] + "\r\n").getBytes());
                 records[index] = buffs[index].readLine();
-                if (records[index] != null){
+                if (records[index] != null) {
                     lrecords[index] = Long.parseLong(records[index].split(",")[2]);
                 } else {
                     lrecords[index] = 0L;
@@ -248,55 +242,56 @@ public class GenWlanApp {
 
             buffOut.flush();
             buffOut.close();
-            for (int i = 0; i < amount; i++){
-                if (buffs[i] != null){
+            for (int i = 0; i < amount; i++) {
+                if (buffs[i] != null) {
                     buffs[i].close();
                     System.out.println(String.format("Close BufferedReader streams: %d", i));
                 }
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return file;
     }
 
-    int findSmallest(long[] arr){
+    int findSmallest(long[] arr) {
         int index = 0;
         long value = arr[0];
         boolean allZero = true;
-        if (arr.length > 1){
-            for (int i = 1; i < arr.length && value == 0; i++){
-                if (arr[i] > 0){
+        if (arr.length > 1) {
+            for (int i = 1; i < arr.length && value == 0; i++) {
+                if (arr[i] > 0) {
                     allZero = false;
                     value = arr[i];
                     index = i;
                     break;
                 }
             }
-            if (index == arr.length){
+            if (index == arr.length) {
                 index = -1;
                 return index;
             }
-            for (int i = index; i < arr.length; i++){
-                if (arr[i] < value && arr[i] > 0){
+            for (int i = index; i < arr.length; i++) {
+                if (arr[i] < value && arr[i] > 0) {
                     value = arr[i];
                     index = i;
                 }
-                if (arr[i] > 0){
+                if (arr[i] > 0) {
                     allZero = false;
                 }
             }
         } else {
-            if (arr[0] > 0){
+            if (arr[0] > 0) {
                 allZero = false;
             }
         }
-        if (allZero){
+        if (allZero) {
             index = -1;
         }
         return index;
     }
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         long timebegin = System.currentTimeMillis();
 
 
@@ -306,7 +301,7 @@ public class GenWlanApp {
         String endDateStr = "2013-01-11 08:30:59.999";
         long genetateRate = 2L;
         double disorderRate = 0D;
-        if (args.length >= 6){
+        if (args.length >= 6) {
             amount = Long.parseLong(args[0]);
             wlanRate = Double.parseDouble(args[1]);
             startDateStr = "2013-01-11 " + args[2] + ".000";
@@ -319,15 +314,15 @@ public class GenWlanApp {
 
         long startDate = 0L, endDate = 0L;
         try {
-            startDate = getTime(startDateStr);
-            endDate = getTime(endDateStr);
-            System.out.println(startDateStr+"\t"+"\t"+startDate+"\t"+getTime(startDate));
-            System.out.println(endDateStr+"\t"+"\t"+endDate+"\t"+getTime(endDate));
-        } catch (ParseException e){
+            startDate = TimeUtil.getTime(startDateStr);
+            endDate = TimeUtil.getTime(endDateStr);
+            System.out.println(startDateStr + "\t" + "\t" + startDate + "\t" + TimeUtil.getTime(startDate));
+            System.out.println(endDateStr + "\t" + "\t" + endDate + "\t" + TimeUtil.getTime(endDate));
+        } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        if (endDate-startDate < 15*60*1000){
+        if (endDate - startDate < 15 * 60 * 1000) {
             System.err.println("time short than 15 minutes, exit now.");
         } else {
             new GenWlanApp().generateData(amount, wlanRate, startDate, endDate, genetateRate, disorderRate);
@@ -389,20 +384,20 @@ public class GenWlanApp {
         System.out.println("耗时：" + (timeend - timebegin));
     }
 
-    static long getTime(String s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z").parse(s + " +0000").getTime();
-    }
-    static String getTime(long s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(s- TimeZone.getDefault().getRawOffset()));
-    }
-
-    static void formatTime(String timeStr){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        try {
-            long ltime = sdf.parse(timeStr).getTime();
-            System.out.println(String.format("%s",ltime));
-        } catch (ParseException e){
-            e.printStackTrace();
-        }
-    }
+//    static long getTime(String s) throws ParseException {
+//        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z").parse(s + " +0000").getTime();
+//    }
+//    static String getTime(long s) throws ParseException {
+//        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(s- TimeZone.getDefault().getRawOffset()));
+//    }
+//
+//    static void formatTime(String timeStr){
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        try {
+//            long ltime = sdf.parse(timeStr).getTime();
+//            System.out.println(String.format("%s",ltime));
+//        } catch (ParseException e){
+//            e.printStackTrace();
+//        }
+//    }
 }

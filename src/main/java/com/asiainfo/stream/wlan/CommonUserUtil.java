@@ -1,5 +1,7 @@
 package com.asiainfo.stream.wlan;
 
+import com.asiainfo.stream.util.TimeUtil;
+
 import java.io.*;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -16,38 +18,35 @@ public class CommonUserUtil {
 
     /**
      * 生成普通用户信令数据
-     * @param imsi
-     * 用户Imsi
-     * @param startDate
-     * 开始时间，正点对应毫秒数
-     * @param endDate
-     * 结束时间，毫秒数
-     * @param generateRate
-     * 生成信令的速率，条/秒
      *
-     * 数据格式：“imsi,eventType,time,cause,lac,cell”
+     * @param imsi         用户Imsi
+     * @param startDate    开始时间，正点对应毫秒数
+     * @param endDate      结束时间，毫秒数
+     * @param generateRate 生成信令的速率，条/秒
+     *                     <p/>
+     *                     数据格式：“imsi,eventType,time,cause,lac,cell”
      */
-    void generateCommonUserData(String imsi, long startDate, long endDate, long generateRate){
-        String filePath = GenWlanApp.fileDir + File.separator +"tmp" + File.separator;
+    void generateCommonUserData(String imsi, long startDate, long endDate, long generateRate) {
+        String filePath = GenWlanApp.fileDir + File.separator + "tmp" + File.separator;
         String fileName = imsi + ".csv";
 
         File file = createFile(filePath, fileName);
-        if(file != null && file.canWrite()){
-            try{
+        if (file != null && file.canWrite()) {
+            try {
                 BufferedOutputStream buff = new BufferedOutputStream(new FileOutputStream(file));
                 String content = genSigContent(imsi, startDate, endDate, generateRate);
                 buff.write(content.getBytes());
                 buff.flush();
                 buff.close();
-            } catch (FileNotFoundException e1){
+            } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
-            } catch (IOException e2){
+            } catch (IOException e2) {
                 e2.printStackTrace();
             }
         }
     }
 
-    String genSigContent(String imsi, long startDate, long endDate, long generateRate){
+    String genSigContent(String imsi, long startDate, long endDate, long generateRate) {
         StringBuilder content = new StringBuilder();
 
         long[] times = null;
@@ -71,19 +70,15 @@ public class CommonUserUtil {
 //        }
 //        System.out.println();
 
-        for(int i = 0; i < minutes; i++){
+        for (int i = 0; i < minutes; i++) {
             times = genRandomTime(generateRate);
-            for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++){
+            for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++) {
                 long signalTime = startDate + times[j];
                 String timeCheck = new String();
-                try {
-                    timeCheck = GenWlanApp.getTime(signalTime);
-                } catch (ParseException e){
-                    e.printStackTrace();
-                }
+                timeCheck = TimeUtil.getTime(signalTime);
                 content.append(imsi + ",99," + signalTime + ",cause,ft,home,calling,called,apn,sgsnIp,res2," + timeCheck + "\r\n");
 
-                if (j == generateRate - 1){
+                if (j == generateRate - 1) {
                     startDate += 60 * 1000;
                 }
             }
@@ -91,20 +86,20 @@ public class CommonUserUtil {
         return content.toString();
     }
 
-    int getNotZeroRandomInt (int ceiling){
+    int getNotZeroRandomInt(int ceiling) {
         int i = random.nextInt(ceiling);
-        while (i == 0){
+        while (i == 0) {
             i = random.nextInt(ceiling);
         }
         return i;
     }
 
-    long[] genRandomTime(long genRate){ // 随机生成1分钟内的genRate个时间点
+    long[] genRandomTime(long genRate) { // 随机生成1分钟内的genRate个时间点
         long[] times = null;
-        if(genRate > 0){
-            times = new long[(int)genRate];
-            for (int i = 0; i < genRate; i++){
-                times[i] = (long)random.nextInt(60 * 1000);
+        if (genRate > 0) {
+            times = new long[(int) genRate];
+            for (int i = 0; i < genRate; i++) {
+                times[i] = (long) random.nextInt(60 * 1000);
             }
             Arrays.sort(times);
         }
@@ -113,25 +108,23 @@ public class CommonUserUtil {
 
     /**
      * create dir and file
-     * @param filePath
-     * 路径
-     * @param fileName
-     * 文件名
-     * @return
-     * 是否成功
+     *
+     * @param filePath 路径
+     * @param fileName 文件名
+     * @return 是否成功
      */
-    File createFile(String filePath, String fileName){
+    File createFile(String filePath, String fileName) {
         File userFilePath = new File(filePath);
-        if (!userFilePath.exists()){
+        if (!userFilePath.exists()) {
             boolean success = userFilePath.mkdirs();
             System.out.println("create dirs: " + userFilePath.getAbsolutePath());
         }
         File userFile = new File(filePath + fileName);
-        if(!userFile.exists()){
-            try{
+        if (!userFile.exists()) {
+            try {
                 boolean created = userFile.createNewFile();
                 System.out.println("new common user file: " + userFile.getAbsolutePath() + ": " + created);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
                 userFile = null;
             }
@@ -142,15 +135,15 @@ public class CommonUserUtil {
         return userFile;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         String startDateStr = "2013-01-11 08:00:00.000", endDateStr = "2013-01-11 08:30:59.999";
         long startDate = 0L, endDate = 0L;
         try {
-            startDate = GenWlanApp.getTime(startDateStr);
-            endDate = GenWlanApp.getTime(endDateStr);
-            System.out.println(startDateStr + "\t"+startDate+"\t" + GenWlanApp.getTime(startDate));
-            System.out.println(endDateStr + "\t"+endDate+"\t" + GenWlanApp.getTime(endDate));
-        } catch (ParseException e){
+            startDate = TimeUtil.getTime(startDateStr);
+            endDate = TimeUtil.getTime(endDateStr);
+            System.out.println(startDateStr + "\t" + startDate + "\t" + TimeUtil.getTime(startDate));
+            System.out.println(endDateStr + "\t" + endDate + "\t" + TimeUtil.getTime(endDate));
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         new CommonUserUtil().generateCommonUserData("100001000002830", startDate, endDate, 2L);

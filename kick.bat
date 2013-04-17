@@ -1,1 +1,1 @@
-java -cp target\dataGenerator-1.0-SNAPSHOT.jar com.asiainfo.stream.tourist.SignalKicker files/data.csv 0 1000 10.1.253.93 10.1.253.92 10.1.253.91
+java -server -Xmx512m -Xms64m -cp target\dataGenerator-1.0-SNAPSHOT.jar com.asiainfo.stream.tourist.SignalKicker files/data.csv 0 1000 10.1.253.93 10.1.253.92 10.1.253.91

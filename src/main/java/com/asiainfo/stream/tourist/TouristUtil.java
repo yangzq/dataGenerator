@@ -1,5 +1,7 @@
 package com.asiainfo.stream.tourist;
 
+import com.asiainfo.stream.util.TimeUtil;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,39 +20,36 @@ public class TouristUtil {
 
     /**
      * 生成游客信令数据
-     * @param imsi
-     * 游客用户Imsi
-     * @param startDate
-     * 开始时间，正点对应毫秒数
-     * @param endDate
-     * 结束时间，毫秒数
-     * @param generateRate
-     * 生成信令的速率，条/秒
      *
-     * 数据格式：“imsi,time,loc,cell”
-     * cell字段为"tourist"时客户在景区
+     * @param imsi         游客用户Imsi
+     * @param startDate    开始时间，正点对应毫秒数
+     * @param endDate      结束时间，毫秒数
+     * @param generateRate 生成信令的速率，条/秒
+     *                     <p/>
+     *                     数据格式：“imsi,time,loc,cell”
+     *                     cell字段为"tourist"时客户在景区
      */
-     void generateTouristData(String imsi, long startDate, long endDate, long generateRate){
-        String filePath = GenApp.fileDir + File.separator +"tmp" + File.separator;
+    void generateTouristData(String imsi, long startDate, long endDate, long generateRate) {
+        String filePath = GenApp.fileDir + File.separator + "tmp" + File.separator;
         String fileName = imsi + ".csv";
 
         File file = createFile(filePath, fileName);
-        if(file != null && file.canWrite()){
-            try{
+        if (file != null && file.canWrite()) {
+            try {
                 BufferedOutputStream buff = new BufferedOutputStream(new FileOutputStream(file));
                 String content = genSigContent(imsi, startDate, endDate, generateRate);
                 buff.write(content.getBytes());
                 buff.flush();
                 buff.close();
-            } catch (FileNotFoundException e1){
+            } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
-            } catch (IOException e2){
+            } catch (IOException e2) {
                 e2.printStackTrace();
             }
         }
     }
 
-    String genSigContent(String imsi, long startDate, long endDate, long generateRate){
+    String genSigContent(String imsi, long startDate, long endDate, long generateRate) {
         StringBuilder content = new StringBuilder();
 
         long[] times = null;
@@ -60,8 +59,8 @@ public class TouristUtil {
         long days = hours / 24;
         int tourDays = getNotZeroRandomInt(5); // 在景区天数，限制少于5天
         int[] tourDaysArr = getRandomIntArr(tourDays, 10); // 最后十天内哪几天在景区
-        for (int i = 0; i < tourDaysArr.length; i++){
-            tourDaysArr[i] = (int)days - tourDaysArr[i];
+        for (int i = 0; i < tourDaysArr.length; i++) {
+            tourDaysArr[i] = (int) days - tourDaysArr[i];
         }
         Arrays.sort(tourDaysArr);
 
@@ -74,15 +73,13 @@ public class TouristUtil {
 //        Test.summaryInfo.append(imsi + ": tourist" + "\t");
         GenApp.summaryInfo.append(imsi + ": tourist" + "\t");
         long[] tourMillisArr = new long[tourDays];
-        for(int i = 0; i < tourDays; i++){
-            tourMillisArr[i] = startDate + (long)(tourDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
-            try {
-                System.out.println(GenApp.getDate(tourMillisArr[i]));
+        for (int i = 0; i < tourDays; i++) {
+            tourMillisArr[i] = startDate + (long) (tourDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
+
+            System.out.println(TimeUtil.getDate(tourMillisArr[i]));
 //                Test.summaryInfo.append(GenApp.getDate(tourMillisArr[i]) + "\t");
-                GenApp.summaryInfo.append(GenApp.getDate(tourMillisArr[i]) + "\t");
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            GenApp.summaryInfo.append(TimeUtil.getDate(tourMillisArr[i]) + "\t");
+
         }
 //        Test.summaryInfo.append("\r\n");
         GenApp.summaryInfo.append("\r\n");
@@ -90,29 +87,27 @@ public class TouristUtil {
 //        long threeHours = 3 * 60 * 60 * 1000;
 //        long fiveHours = 5 * 60 * 60 * 1000;
 
-        for(int i = 0; i < hours; i++){
+        for (int i = 0; i < hours; i++) {
             times = genRandomTime(generateRate);
             locations = genLocation(startDate, endDate, generateRate);
-            for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++){
+            for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++) {
                 long signalTime = startDate + times[j];
                 String timeCheck = new String();
-                try {
-                    timeCheck = GenApp.getTime(signalTime);
-                } catch (ParseException e){
-                    e.printStackTrace();
-                }
-                if (isInDaytimeInterval(tourMillisArr, signalTime)){
+
+                timeCheck = TimeUtil.getTime(signalTime);
+
+                if (isInDaytimeInterval(tourMillisArr, signalTime)) {
                     content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
-                } else if (isInNightInterval(tourMillisArr, signalTime)){
+                } else if (isInNightInterval(tourMillisArr, signalTime)) {
                     content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
                 } else {
-                    if (i == hours -1 && j == generateRate - 1){
+                    if (i == hours - 1 && j == generateRate - 1) {
                         content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
                     } else {
                         content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
                     }
                 }
-                if (j == generateRate - 1){
+                if (j == generateRate - 1) {
                     startDate += 60 * 60 * 1000;
                 }
             }
@@ -120,10 +115,10 @@ public class TouristUtil {
         return content.toString();
     }
 
-    boolean isInDaytimeInterval(long[] timeArr, long time){
+    boolean isInDaytimeInterval(long[] timeArr, long time) {
         boolean isIn = false;
-        for(int i = 0 ; i < timeArr.length; i++){
-            if(time >= (timeArr[i] + (long)8 * 60 * 60 * 1000) && time <= (timeArr[i] + (long)18 * 60 * 60 * 1000)){
+        for (int i = 0; i < timeArr.length; i++) {
+            if (time >= (timeArr[i] + (long) 8 * 60 * 60 * 1000) && time <= (timeArr[i] + (long) 18 * 60 * 60 * 1000)) {
                 isIn = true;
                 return isIn;
             }
@@ -131,10 +126,10 @@ public class TouristUtil {
         return isIn;
     }
 
-    boolean isInNightInterval(long[] timeArr, long time){
+    boolean isInNightInterval(long[] timeArr, long time) {
         boolean isIn = false;
-        for(int i = 0 ; i < timeArr.length; i++){
-            if(time >= (timeArr[i] + (long)18 * 60 * 60 * 1000) && time <= (timeArr[i] + (long)(24 + 8) * 60 * 60 * 1000)){
+        for (int i = 0; i < timeArr.length; i++) {
+            if (time >= (timeArr[i] + (long) 18 * 60 * 60 * 1000) && time <= (timeArr[i] + (long) (24 + 8) * 60 * 60 * 1000)) {
                 isIn = true;
                 return isIn;
             }
@@ -142,16 +137,16 @@ public class TouristUtil {
         return isIn;
     }
 
-    int[] getRandomIntArr(int len, int maxValue){
+    int[] getRandomIntArr(int len, int maxValue) {
         int[] arr = new int[len];
-        for (int i = 0; i < len; i++){
+        for (int i = 0; i < len; i++) {
             arr[i] = 0;
         }
-        if(maxValue > len){
-            for (int i = 0; i < len; i++){
+        if (maxValue > len) {
+            for (int i = 0; i < len; i++) {
                 int tmpInt = random.nextInt(maxValue);
-                for(int j = 0; j < len; j++){
-                    if(tmpInt == arr[j]){
+                for (int j = 0; j < len; j++) {
+                    if (tmpInt == arr[j]) {
                         tmpInt = random.nextInt(maxValue);
                         j = -1; // 重新从0开始循环，赋值为-1是由于还要先运行j++
                     }
@@ -167,22 +162,22 @@ public class TouristUtil {
         }
     }
 
-    int getNotZeroRandomInt (int ceiling){
+    int getNotZeroRandomInt(int ceiling) {
         int i = random.nextInt(ceiling);
-        while (i == 0){
+        while (i == 0) {
             i = random.nextInt(ceiling);
         }
         return i;
     }
 
-    String[][] genLocation(long startDate, long endDate, long genRate){
+    String[][] genLocation(long startDate, long endDate, long genRate) {
         String[][] locations = null;
-        if(genRate > 0){
-            locations = new String[(int)genRate][2];
+        if (genRate > 0) {
+            locations = new String[(int) genRate][2];
             String[] lac = {"hd", "chy", "chp", "xc", "dc", "shy"};
-            String[] cell = {"home", "stadium", "airport", "mall" ,"company"}; // 生成不在景区的信令数据
+            String[] cell = {"home", "stadium", "airport", "mall", "company"}; // 生成不在景区的信令数据
             int llac = lac.length, lcell = cell.length;
-            for(int i = 0; i < genRate; i++){
+            for (int i = 0; i < genRate; i++) {
                 locations[i][0] = lac[random.nextInt(llac)];
                 locations[i][1] = cell[random.nextInt(lcell)];
             }
@@ -190,12 +185,12 @@ public class TouristUtil {
         return locations;
     }
 
-    long[] genRandomTime(long genRate){ // 随机生成一小时内的genRate个时间点
+    long[] genRandomTime(long genRate) { // 随机生成一小时内的genRate个时间点
         long[] times = null;
-        if(genRate > 0){
-            times = new long[(int)genRate];
-            for (int i = 0; i < genRate; i++){
-                times[i] = (long)random.nextInt(60 * 60 * 1000);
+        if (genRate > 0) {
+            times = new long[(int) genRate];
+            for (int i = 0; i < genRate; i++) {
+                times[i] = (long) random.nextInt(60 * 60 * 1000);
             }
             Arrays.sort(times);
         }
@@ -204,25 +199,23 @@ public class TouristUtil {
 
     /**
      * create dir and file
-     * @param filePath
-     * 路径
-     * @param fileName
-     * 文件名
-     * @return
-     * 是否成功
+     *
+     * @param filePath 路径
+     * @param fileName 文件名
+     * @return 是否成功
      */
-     File createFile(String filePath, String fileName){
+    File createFile(String filePath, String fileName) {
         File userFilePath = new File(filePath);
-        if (!userFilePath.exists()){
+        if (!userFilePath.exists()) {
             boolean success = userFilePath.mkdirs();
             System.out.println("create dirs: " + userFilePath.getAbsolutePath());
         }
         File userFile = new File(filePath + fileName);
-        if(!userFile.exists()){
-            try{
+        if (!userFile.exists()) {
+            try {
                 boolean created = userFile.createNewFile();
                 System.out.println("new tourist file: " + userFile.getAbsolutePath() + ": " + created);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
                 userFile = null;
             }
@@ -233,7 +226,7 @@ public class TouristUtil {
         return userFile;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 //        new TouristUtil().generateTouristData("100001000002829", (System.currentTimeMillis() - 3600 * 1000), System.currentTimeMillis(), 6L);
 //        long[] test = new TouristUtil().genRandomTime(System.currentTimeMillis(), 10L);
 //        for(long l: test){
@@ -253,9 +246,9 @@ public class TouristUtil {
         try {
             startDate = sdf.parse(startDateStr).getTime();
             endDate = sdf.parse(endDateStr).getTime();
-            System.out.println(startDateStr+"\t"+sdf.parse(startDateStr)+"\t"+startDate+"\t"+new Date(startDate));
-            System.out.println(endDateStr+"\t"+sdf.parse(startDateStr)+"\t"+endDate+"\t"+new Date(endDate));
-        } catch (ParseException e){
+            System.out.println(startDateStr + "\t" + sdf.parse(startDateStr) + "\t" + startDate + "\t" + new Date(startDate));
+            System.out.println(endDateStr + "\t" + sdf.parse(startDateStr) + "\t" + endDate + "\t" + new Date(endDate));
+        } catch (ParseException e) {
             e.printStackTrace();
         }
 

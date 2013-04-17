@@ -1,5 +1,7 @@
 package com.asiainfo.stream.airport;
 
+import com.asiainfo.stream.util.TimeUtil;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,14 +39,10 @@ public class GenTravellerApp {
      * 乱序比率
      */
     void generateData(long amount, double travellerRate, double employeeRate, long startDate, long endDate, long genetateRate, double disorderRate){
-        try {
             System.out.println("Generate data, user amount: " + amount +
                     ", travellerRate: " + travellerRate +", employeeRate: " + employeeRate +
-                    ", startDate: " + getTime(startDate) + ", endDate: " + getTime(endDate) +
+                    ", startDate: " + TimeUtil.getTime(startDate) + ", endDate: " + TimeUtil.getTime(endDate) +
                     ", genetateRate: " + genetateRate + ", disorderRate: " + disorderRate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
         EmployeeUtil employeeUtil = new EmployeeUtil();
         TravellerUtil travellerUtil = new TravellerUtil();
         CommonUserUtil commonUserUtil = new CommonUserUtil();
@@ -400,24 +398,4 @@ public class GenTravellerApp {
         System.out.println("耗时：" + (timeend - timebegin));
     }
 
-    static long getTime(String s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z").parse(s + " +0000").getTime();
-    }
-    static String getTime(long s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(s- TimeZone.getDefault().getRawOffset()));
-    }
-
-    static String getDate(long s) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd").format(new Date(s- TimeZone.getDefault().getRawOffset()));
-    }
-
-    static void formatTime(String timeStr){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        try {
-            long ltime = sdf.parse(timeStr).getTime();
-            System.out.println(String.format("%s",ltime));
-        } catch (ParseException e){
-            e.printStackTrace();
-        }
-    }
 }
