@@ -4,9 +4,7 @@ import com.asiainfo.stream.util.TimeUtil;
 
 import java.io.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Random;
 
 /**
@@ -16,25 +14,20 @@ import java.util.Random;
  * Time: 上午9:47
  */
 public class EmployeeUtil {
-
-    void generateEmployeeData(String imsi, long startDate, long endDate, long generateRate) {
-
-    }
-
     private Random random = new Random();
 
     /**
-     * 生成景区工作人员信令数据
+     * 生成机场工作人员信令数据
      *
-     * @param imsi         游客用户Imsi
+     * @param imsi         旅客用户Imsi
      * @param startDate    开始时间，正点对应毫秒数
      * @param endDate      结束时间，毫秒数
      * @param generateRate 生成信令的速率，条/秒
      *                     <p/>
-     *                     数据格式：“imsi,time,loc,cell”
-     *                     cell字段为"tourist"时客户在景区
+     *                     数据格式：“imsi,eventType,time,lac,cell”
+     *                     cell字段为"airport"时客户在机场
      */
-    void generateWorkerData(String imsi, long startDate, long endDate, long generateRate) {
+    void generateEmployeeData(String imsi, long startDate, long endDate, long generateRate) {
         String filePath = GenTravellerApp.fileDir + File.separator + "tmp" + File.separator;
         String fileName = imsi + ".csv";
 
@@ -59,83 +52,112 @@ public class EmployeeUtil {
 
         long[] times = null;
         String[][] locations = null;
+        String[] events = null;
 
         long hours = endDate / (60 * 60 * 1000) - startDate / (60 * 60 * 1000) + 1;
         long days = hours / 24;
-        int tourDays = getNotZeroRandomInt(5, 10); // 在景区天数，限制不少于5天，不多于10天
-//        int tourDays = 10;
-        int[] tourDaysArr = getRandomIntArr(tourDays, 10); // 最后十天内哪几天在景区
-        for (int i = 0; i < tourDaysArr.length; i++) {
-            tourDaysArr[i] = (int) days - tourDaysArr[i];
+        int travelDays = getNotZeroRandomInt(10, 15); // 出现在机场的天数，限制不少于10天，不多于15天
+        int[] travelDaysArr = getRandomIntArr(travelDays, 30); // 最后30天内哪几天出现在机场
+        for (int i = 0; i < travelDaysArr.length; i++) {
+            travelDaysArr[i] = (int) days - travelDaysArr[i];
         }
-        Arrays.sort(tourDaysArr);
+        Arrays.sort(travelDaysArr);
 
-        System.out.print(String.format("统计生成%d小时，%d天；在景区%d天，为：", hours, days, tourDays));
-//        for(int i : tourDaysArr){
-//            System.out.print("第" + i +"天，");
-//        }
-//        System.out.println();
+        System.out.print(String.format("统计生成%d小时，%d天；在机场出现%d天，为：", hours, days, travelDays));
 
-//        Test.summaryInfo.append(imsi + ": worker" + "\t\t");
-        GenTravellerApp.summaryInfo.append(imsi + ": worker" + "\t\t");
-        long[] tourMillisArr = new long[tourDays];
-        for (int i = 0; i < tourDays; i++) {
-            tourMillisArr[i] = startDate + (long) (tourDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
-
-            System.out.println(TimeUtil.getDate(tourMillisArr[i]));
-//                Test.summaryInfo.append(GenApp.getDate(tourMillisArr[i]) + "\t");
+        GenTravellerApp.summaryInfo.append(imsi + ": employee" + "\t");
+        long[] tourMillisArr = new long[travelDays];
+        for (int i = 0; i < travelDays; i++) { // 打印可视的在机场信令日期
+            tourMillisArr[i] = startDate + (long) (travelDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
+            System.out.print(TimeUtil.getDate(tourMillisArr[i]) + "\t");
             GenTravellerApp.summaryInfo.append(TimeUtil.getDate(tourMillisArr[i]) + "\t");
 
         }
-//        Test.summaryInfo.append("\r\n");
+        System.out.println();
         GenTravellerApp.summaryInfo.append("\r\n");
 
-//        long threeHours = 3 * 60 * 60 * 1000;
-//        long fiveHours = 5 * 60 * 60 * 1000;
+        final int stayHoursPerDay = 5;
+        for (int d = 0; d < days; d++) { // 按天循环
+            int dayth = Arrays.binarySearch(travelDaysArr, d + 1);
+            if (!(dayth < 0)) { // 当天出现在机场
+                int hourInAirport = random.nextInt(18); // 几时信令在机场区域
+                for (int i = 0; i < 24; i++) { // 每天按小时生成信令
+                    times = genRandomTime(generateRate);
+                    locations = genLocation(generateRate);
+                    events = genEvents(generateRate);
+                    for (int j = 0; (j < generateRate) && !(startDate + times[j] > endDate); j++) {
+                        long signalTime = startDate + times[j];
+                        String timeCheck = TimeUtil.getTime(signalTime);
 
-        for (int i = 0; i < hours; i++) {
-            times = genRandomTime(generateRate);
-            locations = genLocation(startDate, endDate, generateRate);
-            for (int j = 0; j < generateRate && startDate + times[j] <= endDate; j++) {
-                long signalTime = startDate + times[j];
-                String timeCheck = new String();
-
-                timeCheck = TimeUtil.getTime(signalTime);
-
-                if (isInDaytimeInterval(tourMillisArr, signalTime)) {
-                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
-                } else if (isInNightInterval(tourMillisArr, signalTime)) {
-//                    if (i == hours -1 && j == generateRate - 1){
-//                        content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "home," + timeCheck + "\r\n");
-//                    } else {
-                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + "tourist," + timeCheck + "\r\n");
-//                    }
-                } else {
-                    content.append(imsi + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
+                        if (isInAirportMillis(tourMillisArr, hourInAirport, signalTime, stayHoursPerDay)) { // 在机场
+                            if ((dayth == travelDays - 1) && (i == hourInAirport + stayHoursPerDay - 1) && (j == generateRate - 1)) { // 最后一天最后一个在机场的信令
+                                content.append(imsi + "," + "05" + "," + signalTime + "," + locations[j][0] + "," + "airport," + timeCheck + "\r\n");
+                            } else {
+                                content.append(imsi + "," + events[j] + "," + signalTime + "," + locations[j][0] + "," + "airport," + timeCheck + "\r\n");
+                            }
+                        } else {
+                            content.append(imsi + "," + events[j] + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
+                        }
+                        if (j == generateRate - 1) {
+                            startDate += 60 * 60 * 1000;
+                        }
+                    }
                 }
-                if (j == generateRate - 1) {
-                    startDate += 60 * 60 * 1000;
+            } else { // 当天不出现在机场
+                for (int i = 0; i < 24; i++) { // 每天按小时生成信令
+                    times = genRandomTime(generateRate);
+                    locations = genLocation(generateRate);
+                    events = genEvents(generateRate);
+                    for (int j = 0; (j < generateRate) && !(startDate + times[j] > endDate); j++) {
+                        long signalTime = startDate + times[j];
+                        String timeCheck = TimeUtil.getTime(signalTime);
+
+                        content.append(imsi + "," + events[j] + "," + signalTime + "," + locations[j][0] + "," + locations[j][1] + "," + timeCheck + "\r\n");
+
+                        if (j == generateRate - 1) {
+                            startDate += 60 * 60 * 1000;
+                        }
+                    }
                 }
             }
+
+
         }
+
         return content.toString();
     }
 
-    boolean isInDaytimeInterval(long[] timeArr, long time) {
-        boolean isIn = false;
-        for (int i = 0; i < timeArr.length; i++) {
-            if (time >= (timeArr[i] + (long) 8 * 60 * 60 * 1000) && time <= (timeArr[i] + (long) 18 * 60 * 60 * 1000)) {
-                isIn = true;
-                return isIn;
+    /**
+     * genEvents
+     *
+     * @param generateRate
+     * @return String[] 非开关机的其他事件数组
+     *         枚举值 "01"; // 语音主叫
+     *         "02"; // 语音被叫
+     *         "03"; // 短信接收
+     *         "04"; // 短信发送
+     *         "05"; // 开机
+     *         "06"; // 关机
+     *         "99"; // 其他事件
+     */
+    private String[] genEvents(long generateRate) {
+        String[] events = null;
+        if (generateRate > 0) {
+            events = new String[(int) generateRate];
+            String[] etypes = {"01", "02", "03", "04", "99"};
+            int letypes = etypes.length;
+            for (int i = 0; i < generateRate; i++) {
+                events[i] = etypes[random.nextInt(letypes)];
             }
         }
-        return isIn;
+        return events;
     }
 
-    boolean isInNightInterval(long[] timeArr, long time) {
+    boolean isInAirportMillis(long[] timeArr, int hourInAirport, long time, int stayHours) {
         boolean isIn = false;
         for (int i = 0; i < timeArr.length; i++) {
-            if (time >= (timeArr[i] + (long) 18 * 60 * 60 * 1000) && time <= (timeArr[i] + (long) (24 + 8) * 60 * 60 * 1000)) {
+            long startMillisIn = timeArr[i] + hourInAirport * TimeUtil.ONE_HOUR;
+            if (!(time < startMillisIn) && time < (startMillisIn + stayHours*TimeUtil.ONE_HOUR)) {
                 isIn = true;
                 return isIn;
             }
@@ -146,9 +168,9 @@ public class EmployeeUtil {
     int[] getRandomIntArr(int len, int maxValue) {
         int[] arr = new int[len];
         for (int i = 0; i < len; i++) {
-            arr[i] = -1;
+            arr[i] = 0;
         }
-        if (maxValue >= len) {
+        if (maxValue > len) {
             for (int i = 0; i < len; i++) {
                 int tmpInt = random.nextInt(maxValue);
                 for (int j = 0; j < len; j++) {
@@ -158,7 +180,6 @@ public class EmployeeUtil {
                     }
                 }
                 arr[i] = tmpInt;
-//                System.out.println(tmpInt);
             }
             Arrays.sort(arr);
             return arr;
@@ -181,12 +202,20 @@ public class EmployeeUtil {
         return i;
     }
 
-    String[][] genLocation(long startDate, long endDate, long genRate) {
+    int getNotZeroRandomInt(int ceiling) {
+        int i = random.nextInt(ceiling);
+        while (i == 0) {
+            i = random.nextInt(ceiling);
+        }
+        return i;
+    }
+
+    String[][] genLocation(long genRate) {
         String[][] locations = null;
         if (genRate > 0) {
             locations = new String[(int) genRate][2];
-            String[] lac = {"hd", "chy", "chp", "xc", "dc", "shy"};
-            String[] cell = {"home", "stadium", "airport", "mall", "company"}; // 生成不在景区的信令数据
+            String[] lac = {"ft", "hd", "chy", "chp", "xc", "dc", "shy"};
+            String[] cell = {"home", "stadium", "tourist", "mall", "company"}; // 生成不在机场的信令数据
             int llac = lac.length, lcell = cell.length;
             for (int i = 0; i < genRate; i++) {
                 locations[i][0] = lac[random.nextInt(llac)];
@@ -225,7 +254,7 @@ public class EmployeeUtil {
         if (!userFile.exists()) {
             try {
                 boolean created = userFile.createNewFile();
-                System.out.println("new worker file: " + userFile.getAbsolutePath() + ": " + created);
+//                System.out.println("new worker file: " + userFile.getAbsolutePath() + ": " + created);
             } catch (IOException e) {
                 e.printStackTrace();
                 userFile = null;
@@ -239,18 +268,12 @@ public class EmployeeUtil {
 
     public static void main(String[] args) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-11 23:59:59.999";
-        long startDate = 0L, endDate = 0L;
+        String startDateStr = "2013-01-01 00:00:00.000", endDateStr = "2013-01-30 23:59:59.999";
+
         try {
-            startDate = sdf.parse(startDateStr).getTime();
-            endDate = sdf.parse(endDateStr).getTime();
-            System.out.println(startDateStr + "\t" + sdf.parse(startDateStr) + "\t" + startDate + "\t" + new Date(startDate));
-            System.out.println(endDateStr + "\t" + sdf.parse(startDateStr) + "\t" + endDate + "\t" + new Date(endDate));
+            new EmployeeUtil().generateEmployeeData("100001000002830", TimeUtil.getTime(startDateStr), TimeUtil.getTime(endDateStr), 2L);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        new EmployeeUtil().generateWorkerData("100001000002831", 1356969600000L, 1358006399999L, 2L);
-
     }
 }

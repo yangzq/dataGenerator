@@ -69,12 +69,14 @@ public class TravellerUtil {
         long[] tourMillisArr = new long[travelDays];
         for (int i = 0; i < travelDays; i++) { // 打印可视的在机场信令日期
             tourMillisArr[i] = startDate + (long) (travelDaysArr[i] - 1) * 24 * 60 * 60 * 1000;
-            System.out.print(TimeUtil.getDate(tourMillisArr[i]));
+            System.out.print(TimeUtil.getDate(tourMillisArr[i]) + "\t");
             GenTravellerApp.summaryInfo.append(TimeUtil.getDate(tourMillisArr[i]) + "\t");
 
         }
+        System.out.println();
         GenTravellerApp.summaryInfo.append("\r\n");
 
+        final int stayHoursPerDay = 1;
         for (int d = 0; d < days; d++) { // 按天循环
             int dayth = Arrays.binarySearch(travelDaysArr, d + 1);
             if (!(dayth < 0)) { // 当天出现在机场
@@ -87,8 +89,8 @@ public class TravellerUtil {
                         long signalTime = startDate + times[j];
                         String timeCheck = TimeUtil.getTime(signalTime);
 
-                        if (isInAirportMillis(tourMillisArr, hourInAirport, signalTime)) { // 在机场
-                            if (dayth == travelDays - 1 && j == generateRate - 1) { // 最后一天最后一个在机场的信令
+                        if (isInAirportMillis(tourMillisArr, hourInAirport, signalTime, stayHoursPerDay)) { // 在机场
+                            if ((dayth == travelDays - 1) && ((i == hourInAirport + stayHoursPerDay - 1)) && (j == generateRate - 1)) { // 最后一天最后一个在机场的信令
                                 content.append(imsi + "," + "05" + "," + signalTime + "," + locations[j][0] + "," + "airport," + timeCheck + "\r\n");
                             } else {
                                 content.append(imsi + "," + events[j] + "," + signalTime + "," + locations[j][0] + "," + "airport," + timeCheck + "\r\n");
@@ -150,11 +152,11 @@ public class TravellerUtil {
         return events;
     }
 
-    boolean isInAirportMillis(long[] timeArr, int hourInAirport, long time) {
+    boolean isInAirportMillis(long[] timeArr, int hourInAirport, long time, int stayHours) {
         boolean isIn = false;
         for (int i = 0; i < timeArr.length; i++) {
             long startMillisIn = timeArr[i] + hourInAirport * TimeUtil.ONE_HOUR;
-            if (!(time < startMillisIn) && time < (startMillisIn + TimeUtil.ONE_HOUR)) {
+            if (!(time < startMillisIn) && time < (startMillisIn + stayHours*TimeUtil.ONE_HOUR)) {
                 isIn = true;
                 return isIn;
             }
@@ -238,7 +240,7 @@ public class TravellerUtil {
         if (!userFile.exists()) {
             try {
                 boolean created = userFile.createNewFile();
-                System.out.println("new tourist file: " + userFile.getAbsolutePath() + ": " + created);
+//                System.out.println("new traveller file: " + userFile.getAbsolutePath() + ": " + created);
             } catch (IOException e) {
                 e.printStackTrace();
                 userFile = null;

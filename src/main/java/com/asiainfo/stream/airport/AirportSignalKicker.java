@@ -57,7 +57,7 @@ public class AirportSignalKicker {
                                     int index = ((i - 1) / 100) % paramLength;
                                     out[index].println(rec);
                                     out[index].flush();
-                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
+//                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
                                     if (i % 1000 == 0) {
                                         long timeb = System.currentTimeMillis();
                                         System.out.println("本次发送1000条数据耗时：" + (timeb - timea));
@@ -76,7 +76,7 @@ public class AirportSignalKicker {
                                     int index = ((i - 1) / 100) % paramLength;
                                     out[index].println(rec);
                                     out[index].flush();
-                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
+//                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
                                     if (i % 1000 == 0) {
                                         long timeb = System.currentTimeMillis();
                                         System.out.println("本次发送1000条数据耗时：" + (timeb - timea));
@@ -98,7 +98,7 @@ public class AirportSignalKicker {
                                 sockets[j].close();
                             }
                             long time2 = System.currentTimeMillis();
-                            System.out.println("发送数据耗时：" + (time2 - time1));
+                            System.out.println("发送数据耗时：" + (time2 - time1) + "，信令条数：" + (i-1));
                         } catch (UnknownHostException e1) {
                             e1.printStackTrace();
                         } catch (IOException e2) {

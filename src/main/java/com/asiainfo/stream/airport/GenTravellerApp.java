@@ -49,16 +49,16 @@ public class GenTravellerApp {
             startImsi += (long) (travellerUtil.getNotZeroRandomInt(10000));
             imsi = Long.toString(startImsi);
             double tRate = Math.random();
-            if (tRate >= 0 && tRate <= travellerRate) { // 游客
-                System.out.println(imsi + "\t" + "traveller" + "\t" + tRate);
+            if (tRate >= 0 && tRate <= travellerRate) { // 旅客
+                System.out.println(imsi + "\t" + "traveller" + "\t");
                 travellerUtil.generateTravellerData(imsi, startDate, endDate, genetateRate);
 //                imsiInfo.append(imsi + ": traveller" + "\r\n");
             } else if (tRate > travellerRate && tRate <= (employeeRate + travellerRate)) { // 工作人员
-                System.out.println(imsi + "\t" + "employee" + "\t" + tRate);
+                System.out.println(imsi + "\t" + "employee" + "\t");
                 employeeUtil.generateEmployeeData(imsi, startDate, endDate, genetateRate);
 //                imsiInfo.append(imsi + ": employee" + "\r\n");
             } else { // 普通用户
-                System.out.println(imsi + "\t" + tRate);
+//                System.out.println(imsi + "\t" + "common user");
                 commonUserUtil.generateCommonUserData(imsi, startDate, endDate, genetateRate);
 //                imsiInfo.append(imsi + ": commonUser" + "\r\n");
             }
@@ -297,18 +297,17 @@ public class GenTravellerApp {
     public static void main(String[] args) {
         long timebegin = System.currentTimeMillis();
 
-        /*
         long amount = 100L;
-        double touristRate = 0.002D;
-        double workerRate = 0.001D;
+        double travellerRate = 0.10D;
+        double employeeRate = 0.05D;
         String startDateStr = "2013-01-01 00:00:00.000";
-        String endDateStr = "2013-01-31 23:59:59.999";
+        String endDateStr = "2013-01-30 23:59:59.999";
         long genetateRate = 2L;
         double disorderRate = 0D;
         if (args.length >= 7){
             amount = Long.parseLong(args[0]);
-            touristRate = Double.parseDouble(args[1]);
-            workerRate = Double.parseDouble(args[2]);
+            travellerRate = Double.parseDouble(args[1]);
+            employeeRate = Double.parseDouble(args[2]);
             startDateStr = args[3] + " 00:00:00.000";
             endDateStr = args[4] + " 23:59:59.999";
             genetateRate = Long.parseLong(args[5]);
@@ -317,18 +316,18 @@ public class GenTravellerApp {
 
         long startDate = 0L, endDate = 0L;
         try {
-            startDate = getTime(startDateStr);
-            endDate = getTime(endDateStr);
-            System.out.println(startDateStr+"\t"+"\t"+startDate+"\t"+getTime(startDate));
-            System.out.println(endDateStr+"\t"+"\t"+endDate+"\t"+getTime(endDate));
+            startDate = TimeUtil.getTime(startDateStr);
+            endDate = TimeUtil.getTime(endDateStr);
+            System.out.println(startDateStr+"\t"+"\t"+startDate+"\t"+TimeUtil.getTime(startDate));
+            System.out.println(endDateStr+"\t"+"\t"+endDate+"\t"+TimeUtil.getTime(endDate));
         } catch (ParseException e){
             e.printStackTrace();
         }
-        new GenTravellerApp().generateData(amount, touristRate, workerRate, startDate, endDate, genetateRate, disorderRate);
-        */
+        new GenTravellerApp().generateData(amount, travellerRate, employeeRate, startDate, endDate, genetateRate, disorderRate);
 
 
-        new GenTravellerApp().mergeFile(fileDir + File.separator + "tmp" + File.separator, fileDir + File.separator + "data.csv");
+//        new GenTravellerApp().mergeFile(fileDir + File.separator + "tmp" + File.separator, fileDir + File.separator + "data.csv");
+
 //        File[] fileArr = {new File(fileDir + File.separator +"tmp" + File.separator + "100001000008494.csv"),
 //                new File(fileDir + File.separator +"tmp" + File.separator + "100001000015771.csv"),
 //                new File(fileDir + File.separator +"tmp" + File.separator + "100001005052764.csv"), };
