@@ -304,7 +304,7 @@ public class GenApp {
         String endDateStr = "2013-01-10 23:59:59.999";
         long genetateRate = 2L;
         double disorderRate = 0D;
-        if (args.length >= 7){
+        if (args.length >= 7) {
             amount = Long.parseLong(args[0]);
             touristRate = Double.parseDouble(args[1]);
             workerRate = Double.parseDouble(args[2]);
@@ -320,9 +320,9 @@ public class GenApp {
         try {
             startDate = TimeUtil.getTime(startDateStr);
             endDate = TimeUtil.getTime(endDateStr);
-            System.out.println(startDateStr+"\t" + "\t"+startDate+"\t" + TimeUtil.getTime(startDate));
-            System.out.println(endDateStr+"\t" + "\t"+endDate+"\t" + TimeUtil.getTime(endDate));
-        } catch (ParseException e){
+            System.out.println(startDateStr + "\t" + "\t" + startDate + "\t" + TimeUtil.getTime(startDate));
+            System.out.println(endDateStr + "\t" + "\t" + endDate + "\t" + TimeUtil.getTime(endDate));
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         new GenApp().generateData(amount, touristRate, workerRate, startDate, endDate, genetateRate, disorderRate);

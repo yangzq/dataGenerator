@@ -8,7 +8,7 @@ package com.asiainfo.stream.airport;
  */
 public class CommonUserUtil {
 
-    void generateCommonUserData(String imsi, long startDate, long endDate, long generateRate){
+    void generateCommonUserData(String imsi, long startDate, long endDate, long generateRate) {
 
     }
 }
