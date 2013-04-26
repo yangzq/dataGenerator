@@ -221,7 +221,7 @@ public class GenTravellerApp {
                 buffs[i] = new BufferedReader(new InputStreamReader(new FileInputStream(sourceFileArr[i])));
                 records[i] = buffs[i].readLine();
                 if (records[i] != null) {
-                    lrecords[i] = Long.parseLong(records[i].split(",")[1]);
+                    lrecords[i] = Long.parseLong(records[i].split(",")[2]);
                 } else {
                     lrecords[i] = 0L;
                 }
@@ -235,7 +235,7 @@ public class GenTravellerApp {
                 buffOut.write((records[index] + "\r\n").getBytes());
                 records[index] = buffs[index].readLine();
                 if (records[index] != null) {
-                    lrecords[index] = Long.parseLong(records[index].split(",")[1]);
+                    lrecords[index] = Long.parseLong(records[index].split(",")[2]);
                 } else {
                     lrecords[index] = 0L;
                 }

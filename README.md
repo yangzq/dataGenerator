@@ -1,29 +1,45 @@
 dataGenerator
 =============
 
-¾°ÇøÓÎ¿Í°¸Àı²ÎÊıËµÃ÷£º
+æ™¯åŒºæ¸¸å®¢æ¡ˆä¾‹å‚æ•°è¯´æ˜ï¼š
 /**
- * °´ÓÃ»§ÀàĞÍÉú³ÉĞÅÁîÊı¾İ
+ * æŒ‰ç”¨æˆ·ç±»å‹ç”Ÿæˆä¿¡ä»¤æ•°æ®
  *
- * @param amount       ÓÃ»§Êı¾İ¹æÄ£
- * @param touristRate  ÓÎ¿Í±ÈÂÊ£¬double
- * @param workerRate   ¹¤×÷ÈËÔ±±ÈÂÊ£¬double
- * @param startDate    ¿ªÊ¼Ê±¼ä£¬yyyy-MM-dd
- * @param endDate      ½áÊøÊ±¼ä£¬yyyy-MM-dd
- * @param genetateRate ĞÅÁîÊı¾İÉú³ÉËÙÂÊ£¬Ìõ/Ê±
- * @param disorderRate ÂÒĞò±ÈÂÊ
+ * @param amount       ç”¨æˆ·æ•°
+ * @param touristRate  æ¸¸å®¢æ¯”ç‡ï¼Œdouble
+ * @param workerRate   å·¥ä½œäººå‘˜æ¯”ç‡ï¼Œdouble
+ * @param startDate    å¼€å§‹æ—¶é—´ï¼Œyyyy-MM-dd
+ * @param endDate      ç»“æŸæ—¶é—´ï¼Œyyyy-MM-dd
+ * @param genetateRate ä¿¡ä»¤æ•°æ®ç”Ÿæˆé€Ÿç‡ï¼Œæ¡/æ—¶
+ * @param disorderRate ä¹±åºæ¯”ç‡
  */
-Êı¾İÉú³ÉÔÚfiles/ÎÄ¼ş¼ĞÖĞ£¬data.csvÎªÊı¾İÎÄ¼ş£¬summary.csvÎª²âÊÔÊı¾İÍ³¼ÆĞÅÏ¢¡£
+æ•°æ®ç”Ÿæˆåœ¨files/æ–‡ä»¶å¤¹ä¸­ï¼Œdata.csvä¸ºæ•°æ®æ–‡ä»¶ï¼Œsummary.csvä¸ºæµ‹è¯•æ•°æ®ç»Ÿè®¡ä¿¡æ¯ã€‚
+
 --------------------------
-wlanÈÈµãÌáĞÑ°¸Àı²ÎÊıËµÃ÷£º
+wlançƒ­ç‚¹æé†’æ¡ˆä¾‹å‚æ•°è¯´æ˜ï¼š
 /**
- * °´ÓÃ»§ÀàĞÍÉú³ÉĞÅÁîÊı¾İ
+ * æŒ‰ç”¨æˆ·ç±»å‹ç”Ÿæˆä¿¡ä»¤æ•°æ®
  *
- * @param amount       ÓÃ»§Êı¾İ¹æÄ£
- * @param wlanRate     WLANÓÃ»§±ÈÂÊ£¬double
- * @param startDate    ¿ªÊ¼Ê±¼ä£¬HH:mm:ss£¬ÈÕÆÚÎª2013-01-11
- * @param endDate      ½áÊøÊ±¼ä£¬HH:mm:ss£¬ÈÕÆÚÎª2013-01-11
- * @param generateRate ĞÅÁîÊı¾İÉú³ÉËÙÂÊ£¬Ìõ/·ÖÖÓ
- * @param disorderRate ÂÒĞò±ÈÂÊ
+ * @param amount       ç”¨æˆ·æ•°
+ * @param wlanRate     WLANç”¨æˆ·æ¯”ç‡ï¼Œdouble
+ * @param startDate    å¼€å§‹æ—¶é—´ï¼ŒHH:mm:ssï¼Œæ—¥æœŸä¸º2013-01-11
+ * @param endDate      ç»“æŸæ—¶é—´ï¼ŒHH:mm:ssï¼Œæ—¥æœŸä¸º2013-01-11
+ * @param generateRate ä¿¡ä»¤æ•°æ®ç”Ÿæˆé€Ÿç‡ï¼Œæ¡/åˆ†é’Ÿ
+ * @param disorderRate ä¹±åºæ¯”ç‡
  */
-Êı¾İÉú³ÉÔÚwlanfiles/ÎÄ¼ş¼ĞÖĞ£¬data.csvÎªÊı¾İÎÄ¼ş£¬summary.csvÎª²âÊÔÊı¾İÍ³¼ÆĞÅÏ¢¡£
+æ•°æ®ç”Ÿæˆåœ¨wlanfiles/æ–‡ä»¶å¤¹ä¸­ï¼Œdata.csvä¸ºæ•°æ®æ–‡ä»¶ï¼Œsummary.csvä¸ºæµ‹è¯•æ•°æ®ç»Ÿè®¡ä¿¡æ¯ã€‚
+
+--------------------------
+æœºåœºæ¥æ¸¯å®¢æˆ·æ¡ˆä¾‹å‚æ•°è¯´æ˜ï¼š
+/**
+ * æŒ‰ç”¨æˆ·ç±»å‹ç”Ÿæˆä¿¡ä»¤æ•°æ®
+ *
+ * @param amount        ç”¨æˆ·æ•°
+ * @param travellerRate æŠµæ¸¯æ—…å®¢æ¯”ç‡ï¼Œdouble
+ * @param employeeRate  å·¥ä½œäººå‘˜æ¯”ç‡ï¼Œdouble
+ * @param startDate     å¼€å§‹æ—¶é—´ï¼Œyyyy-MM-dd
+ * @param endDate       ç»“æŸæ—¶é—´ï¼Œyyyy-MM-dd
+ * @param genetateRate  ä¿¡ä»¤æ•°æ®ç”Ÿæˆé€Ÿç‡ï¼Œæ¡/æ—¶
+ * @param disorderRate  ä¹±åºæ¯”ç‡
+ */
+æ•°æ®ç”Ÿæˆåœ¨airportfiles/æ–‡ä»¶å¤¹ä¸­ï¼Œdata.csvä¸ºæ•°æ®æ–‡ä»¶ï¼Œsummary.csvä¸ºæµ‹è¯•æ•°æ®ç»Ÿè®¡ä¿¡æ¯ã€‚
