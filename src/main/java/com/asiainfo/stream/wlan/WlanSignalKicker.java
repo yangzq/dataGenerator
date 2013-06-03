@@ -21,6 +21,7 @@ public class WlanSignalKicker {
         final int paramLength = args.length - 3;
         final String[] destIp = new String[paramLength];
         final int[] destPorts = new int[paramLength];
+        final int batch = Integer.parseInt(System.getProperty("batch","100000"));
         if (paramLength >= 1) {
             for (int i = 0; i < paramLength; i++) {
                 destIp[i] = args[i + 3].split(":")[0];
@@ -56,9 +57,9 @@ public class WlanSignalKicker {
                                 while (rec != null && i <= kickCount) {
                                     int index = ((i - 1) / 100) % paramLength;
                                     out[index].println(rec);
-                                    out[index].flush();
 //                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
                                     if (i % 1000 == 0) {
+                                        out[index].flush();
                                         long timeb = System.currentTimeMillis();
                                         System.out.println("本次发送1000条数据耗时：" + (timeb - timea));
                                         Thread.sleep(sleepTime);
@@ -77,9 +78,9 @@ public class WlanSignalKicker {
                                     out[index].println(rec);
                                     out[index].flush();
 //                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
-                                    if (i % 1000 == 0) {
+                                    if (i % batch == 0) {
                                         long timeb = System.currentTimeMillis();
-                                        System.out.println("本次发送1000条数据耗时：" + (timeb - timea));
+                                        System.out.println("本次发送"+batch+"条数据耗时：" + (timeb - timea));
                                         Thread.sleep(sleepTime);
                                         System.out.println("--------------------------------------------");
                                         System.out.println("Thread.sleep(" + sleepTime + ")");
