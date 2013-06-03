@@ -21,7 +21,7 @@ public class WlanSignalKicker {
         final int paramLength = args.length - 3;
         final String[] destIp = new String[paramLength];
         final int[] destPorts = new int[paramLength];
-        final int batch = Integer.parseInt(System.getProperty("batch","100000"));
+        final int batch = Integer.parseInt(System.getProperty("batch", "100000"));
         if (paramLength >= 1) {
             for (int i = 0; i < paramLength; i++) {
                 destIp[i] = args[i + 3].split(":")[0];
@@ -56,9 +56,10 @@ public class WlanSignalKicker {
                                 System.out.println("指定发送： " + kickCount + " 条信令");
                                 while (rec != null && i <= kickCount) {
                                     int index = ((i - 1) / 100) % paramLength;
-                                    out[index].println(rec);
+                                    print(out, rec, index, destIp, destPorts, sockets);
+//                                    out[index].println(rec);
 //                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
-                                    if (i % 1000 == 0) {
+                                    if (i % batch == 0) {
                                         out[index].flush();
                                         long timeb = System.currentTimeMillis();
                                         System.out.println("本次发送1000条数据耗时：" + (timeb - timea));
@@ -75,12 +76,16 @@ public class WlanSignalKicker {
                                 System.out.println("指定发送所有信令");
                                 while (rec != null) {
                                     int index = ((i - 1) / 100) % paramLength;
-                                    out[index].println(rec);
-                                    out[index].flush();
+//                                    try {
+                                    print(out, rec, index, destIp, destPorts, sockets);
+//                                    } catch (Exception e){
+//                                        sockets[index] = new Socket(destIp[index] != null ? destIp[index] : "localhost", destPorts[index]);
+//                                        out[index] = new PrintWriter(sockets[index].getOutputStream());
+//                                    }
 //                                    System.out.println(String.format("Send data: %s to: %s:%s, num: %d", rec, sockets[index].getInetAddress(), sockets[index].getPort(), i));
                                     if (i % batch == 0) {
                                         long timeb = System.currentTimeMillis();
-                                        System.out.println("本次发送"+batch+"条数据耗时：" + (timeb - timea));
+                                        System.out.println("本次发送" + batch + "条数据耗时：" + (timeb - timea));
                                         Thread.sleep(sleepTime);
                                         System.out.println("--------------------------------------------");
                                         System.out.println("Thread.sleep(" + sleepTime + ")");
@@ -115,4 +120,24 @@ public class WlanSignalKicker {
         }).start();
 
     }
+
+    private static void print(PrintWriter[] out, String rec, int index, String[] destIp, int[] destPorts, Socket[] sockets) {
+        out[index].println(rec);
+        out[index].flush();
+        if (out[index].checkError()) {
+            try {
+                Thread.sleep(1000);
+                sockets[index] = new Socket(destIp[index] != null ? destIp[index] : "localhost", destPorts[index]);
+                out[index] = new PrintWriter(sockets[index].getOutputStream());
+
+                print(out, rec, index, destIp, destPorts, sockets);
+            } catch (Exception e1) {
+                print(out, rec, index, destIp, destPorts, sockets);
+            }
+        }
+
+
+    }
+
+
 }
